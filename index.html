@@ -3,83 +3,274 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Akira Breach Ops — CrackTheCode (Realistic Audio Edition)</title>
+  <title>Akira Breach Ops — CrackTheCode</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Fira+Code:wght@400;700&display=swap" rel="stylesheet">
   <style>
     :root{
-      --bg:#050612; --panel:#071024; --accent:#b35cff; --accent2:#00e0ff;
-      --gold:#ffd23f; --ok:#39ff14; --danger:#ff3055; --muted:#9aa6b2;
-      --glass:rgba(255,255,255,0.035); --glass-border: rgba(255,255,255,0.06);
+      --bg:#050612;
+      --panel:#071024;
+      --accent:#b35cff;
+      --accent2:#00e0ff;
+      --gold:#ffd23f;
+      --ok:#39ff14;
+      --danger:#ff3055;
+      --muted:#9aa6b2;
+      --glass:rgba(255,255,255,0.035);
+      --glass-border: rgba(255,255,255,0.06);
       font-family: "Inter", system-ui, -apple-system, "Fira Code", ui-monospace, monospace;
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
     }
     *{box-sizing:border-box}
     html,body{height:100%}
     body{
-      margin:0;padding:18px;
+      margin:0;
+      padding:18px;
       background:
         radial-gradient(1200px 400px at 10% 10%, rgba(179,92,255,0.06), transparent 6%),
         radial-gradient(1000px 300px at 90% 80%, rgba(0,224,255,0.03), transparent 6%),
         linear-gradient(180deg,#051028 0%, #02030a 100%);
-      color:#e8eef8; display:flex; justify-content:center; align-items:flex-start;
+      color:#e8eef8;
+      display:flex;
+      justify-content:center;
+      align-items:flex-start;
       min-height:calc(100vh - 36px);
     }
 
     .shell{
-      width:100%; max-width:1280px; border-radius:16px; overflow:hidden;
+      width:100%;
+      max-width:1280px;
+      border-radius:16px;
+      overflow:hidden;
       background: linear-gradient(180deg, rgba(6,10,22,0.85), rgba(2,4,8,0.95));
       box-shadow: 0 24px 80px rgba(2,2,6,0.9), inset 0 1px 0 rgba(255,255,255,0.02);
       border:1px solid var(--glass-border);
-      display:grid; grid-template-columns: 1.55fr 0.95fr; gap:14px;
+      display:grid;
+      grid-template-columns: 1.55fr 0.95fr;
+      gap:14px;
       position:relative;
     }
 
-    .map-col{ padding:18px; position:relative; }
-    .topbar{ display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:12px; }
-    .title{ display:flex; gap:12px; align-items:baseline; }
-    .logo{ width:44px;height:44px;border-radius:10px; background: linear-gradient(135deg,var(--accent),var(--gold)); display:flex;align-items:center;justify-content:center;color:#081022;font-weight:800; font-family:"Fira Code"; box-shadow: 0 6px 22px rgba(179,92,255,0.08); }
-    h1{font-size:16px;margin:0;color:var(--accent);letter-spacing:0.6px}
-    .subtitle{font-size:12px;color:var(--muted);margin-top:2px}
+    .map-col{
+      padding:18px;
+      position:relative;
+    }
+    .topbar{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      margin-bottom:12px;
+    }
+    .title{
+      display:flex;
+      gap:12px;
+      align-items:baseline;
+    }
+    .logo{
+      width:44px;
+      height:44px;
+      border-radius:10px;
+      background: linear-gradient(135deg,var(--accent),var(--gold));
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      color:#081022;
+      font-weight:800;
+      font-family:"Fira Code";
+      box-shadow: 0 6px 22px rgba(179,92,255,0.08);
+    }
+    h1{
+      font-size:16px;
+      margin:0;
+      color:var(--accent);
+      letter-spacing:0.6px
+    }
+    .subtitle{
+      font-size:12px;
+      color:var(--muted);
+      margin-top:2px
+    }
 
-    .det-top{ display:flex; gap:10px; align-items:center; min-width:220px; }
-    .det-label{ font-size:12px; color:var(--muted) }
-    .det-wrap{ background:var(--glass); height:10px; border-radius:999px; overflow:hidden; width:320px; border:1px solid var(--glass-border); }
-    .det-fill{ height:100%; width:0%; background:linear-gradient(90deg,var(--ok),var(--gold),var(--danger)); box-shadow:0 6px 18px rgba(255,48,85,0.08) }
+    .det-top{
+      display:flex;
+      gap:10px;
+      align-items:center;
+      min-width:220px;
+    }
+    .det-label{
+      font-size:12px;
+      color:var(--muted)
+    }
+    .det-wrap{
+      background:var(--glass);
+      height:10px;
+      border-radius:999px;
+      overflow:hidden;
+      width:320px;
+      border:1px solid var(--glass-border);
+    }
+    .det-fill{
+      height:100%;
+      width:0%;
+      background:linear-gradient(90deg,var(--ok),var(--gold),var(--danger));
+      box-shadow:0 6px 18px rgba(255,48,85,0.08)
+    }
+    #detText{
+      color:var(--muted);
+      font-size:12px;
+    }
 
-    #netmap{ width:100%; height:calc(100% - 92px); border-radius:10px; background:
-      linear-gradient(180deg, rgba(4,8,18,0.4), rgba(2,3,10,0.85)),
-      repeating-linear-gradient(135deg, rgba(255,255,255,0.01) 0px, rgba(255,255,255,0.01) 1px, transparent 1px, transparent 8px);
-      border:1px solid rgba(255,255,255,0.03); position:relative; overflow:hidden; box-shadow: inset 0 0 48px rgba(0,0,0,0.6);
+    #netmap{
+      width:100%;
+      height:calc(100% - 92px);
+      border-radius:10px;
+      background:
+        linear-gradient(180deg, rgba(4,8,18,0.4), rgba(2,3,10,0.85)),
+        repeating-linear-gradient(135deg, rgba(255,255,255,0.01) 0px, rgba(255,255,255,0.01) 1px, transparent 1px, transparent 8px);
+      border:1px solid rgba(255,255,255,0.03);
+      position:relative;
+      overflow:hidden;
+      box-shadow: inset 0 0 48px rgba(0,0,0,0.6);
     }
     #netmap svg{width:100%;height:100%;display:block}
 
-    .node-rect{ fill: rgba(6,8,16,0.9); stroke: rgba(179,92,255,0.24); stroke-width:1.4; rx:8; ry:8; filter: drop-shadow(0 8px 22px rgba(0,0,0,0.7)); transition: all 160ms ease; }
+    .node-rect{
+      fill: rgba(6,8,16,0.9);
+      stroke: rgba(179,92,255,0.24);
+      stroke-width:1.4;
+      rx:8; ry:8;
+      filter: drop-shadow(0 8px 22px rgba(0,0,0,0.7));
+      transition: all 160ms ease;
+    }
     .node-text{ font-size:12px; fill:var(--accent2); font-weight:700 }
     .node-sub{ font-size:10px; fill:var(--muted) }
     .link-line{ stroke: url(#linkGradient); stroke-width:3; stroke-linecap:round; opacity:0.9; filter: drop-shadow(0 6px 14px rgba(0,224,255,0.06)) }
     .link-ghost{ stroke: rgba(255,255,255,0.02); stroke-width:2 }
-    .selected rect.node-rect{ stroke: var(--gold); transform: translateY(-4px); filter: drop-shadow(0 12px 28px rgba(255,210,63,0.12)) }
-    .compromised rect.node-rect{ stroke: var(--ok); box-shadow:0 0 12px rgba(57,255,20,0.15) }
-    .detected rect.node-rect{ stroke: var(--danger); filter: drop-shadow(0 12px 28px rgba(255,48,85,0.18)) }
-    .packet{ fill: var(--accent2); stroke: rgba(0,0,0,0.2); stroke-width:0.6; filter: drop-shadow(0 6px 12px rgba(0,224,255,0.06)) }
+    .selected rect.node-rect{
+      stroke: var(--gold);
+      transform: translateY(-4px);
+      filter: drop-shadow(0 12px 28px rgba(255,210,63,0.12));
+    }
+    .compromised rect.node-rect{ stroke: var(--ok); }
+    .detected rect.node-rect{ stroke: var(--danger); }
+    .packet{
+      fill: var(--accent2);
+      stroke: rgba(0,0,0,0.2);
+      stroke-width:0.6;
+      filter: drop-shadow(0 6px 12px rgba(0,224,255,0.06))
+    }
 
-    .ui-col{ padding:18px; border-left:1px solid rgba(255,255,255,0.02); display:flex; flex-direction:column; gap:12px }
-    .panel{ background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.02)); padding:12px; border-radius:10px; border:1px solid rgba(255,255,255,0.03) }
-    .panel h3{ margin:0 0 6px 0; color:var(--accent2); font-size:13px; letter-spacing:0.6px }
-    #log{ font-family: "Fira Code"; font-size:12px; max-height:220px; overflow:auto; color:var(--muted) }
+    .ui-col{
+      padding:18px;
+      border-left:1px solid rgba(255,255,255,0.02);
+      display:flex;
+      flex-direction:column;
+      gap:12px
+    }
+    .panel{
+      background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.02));
+      padding:12px;
+      border-radius:10px;
+      border:1px solid rgba(255,255,255,0.03)
+    }
+    .panel h3{
+      margin:0 0 6px 0;
+      color:var(--accent2);
+      font-size:13px;
+      letter-spacing:0.6px
+    }
+
+    #log{
+      font-family: "Fira Code";
+      font-size:12px;
+      max-height:220px;
+      overflow:auto;
+      color:var(--muted)
+    }
     .log-line{ margin-bottom:6px; line-height:1.2 }
-    .log-sys{ color:var(--accent2) } .log-lyra{ color:var(--gold) } .log-ok{ color:var(--ok) } .log-bad{ color:var(--danger) }
+    .log-sys{ color:var(--accent2) }
+    .log-lyra{ color:var(--gold) }
+    .log-ok{ color:var(--ok) }
+    .log-bad{ color:var(--danger) }
 
-    .selected-info{ font-size:13px; color:var(--muted); min-height:64px }
-    .actions{ margin-top:8px; display:grid; grid-template-columns:repeat(2,1fr); gap:8px }
-    .btn{ background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.02)); border:1px solid rgba(255,255,255,0.04); color:var(--accent2); padding:10px; border-radius:8px; cursor:pointer; font-weight:600; font-size:13px; letter-spacing:0.6px; }
-    .btn.small{ padding:6px 8px; font-size:12px } .btn.ghost{ color:var(--muted); border-style:dashed } .btn.danger{ color:var(--danger) }
-    .bottom-actions{ display:flex; gap:8px; justify-content:space-between; align-items:center; margin-top:8px }
-    .muted{ color:var(--muted); font-size:12px }
-    .overlay{ position:absolute; inset:0; display:flex; align-items:center; justify-content:center; background:linear-gradient(180deg, rgba(2,4,6,0.5), rgba(2,4,6,0.85)); z-index:9; display:none }
-    .overlay .card{ background: linear-gradient(180deg, rgba(6,10,22,0.96), rgba(2,4,8,0.98)); border-radius:12px; padding:20px; width:520px; border:1px solid rgba(255,255,255,0.04) }
-    .overlay h2{ margin:0; color:var(--gold); font-size:20px } .overlay p{ color:var(--muted); margin-top:8px }
+    .selected-info{
+      font-size:13px;
+      color:var(--muted);
+      min-height:64px
+    }
 
-    @media (max-width:980px){ .shell{ grid-template-columns:1fr; } .map-col{ order:2 } .ui-col{ order:1 } .det-wrap{ width:180px } }
+    .actions{
+      margin-top:8px;
+      display:grid;
+      grid-template-columns:repeat(2,1fr);
+      gap:8px
+    }
+    .btn{
+      background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.02));
+      border:1px solid rgba(255,255,255,0.04);
+      color:var(--accent2);
+      padding:10px;
+      border-radius:8px;
+      cursor:pointer;
+      font-weight:600;
+      font-size:13px;
+      letter-spacing:0.6px;
+    }
+    .btn.small{
+      padding:6px 8px;
+      font-size:12px;
+    }
+    .btn.ghost{
+      color:var(--muted);
+      border-style:dashed;
+    }
+
+    .bottom-actions{
+      display:flex;
+      gap:8px;
+      justify-content:space-between;
+      align-items:center;
+      margin-top:8px
+    }
+    .muted{
+      color:var(--muted);
+      font-size:12px
+    }
+
+    .overlay{
+      position:absolute;
+      inset:0;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      background:linear-gradient(180deg, rgba(2,4,6,0.5), rgba(2,4,6,0.85));
+      z-index:9;
+      display:none
+    }
+    .overlay .card{
+      background: linear-gradient(180deg, rgba(6,10,22,0.96), rgba(2,4,8,0.98));
+      border-radius:12px;
+      padding:20px;
+      width:520px;
+      border:1px solid rgba(255,255,255,0.04)
+    }
+    .overlay h2{
+      margin:0;
+      color:var(--gold);
+      font-size:20px
+    }
+    .overlay p{
+      color:var(--muted);
+      margin-top:8px
+    }
+
+    @media (max-width:980px){
+      .shell{ grid-template-columns:1fr; }
+      .map-col{ order:2 }
+      .ui-col{ order:1 }
+      .det-wrap{ width:180px }
+    }
   </style>
 </head>
 <body>
@@ -90,20 +281,22 @@
           <div class="logo">CTC</div>
           <div>
             <h1>Akira Breach Ops</h1>
-            <div class="subtitle">Simulation réseau — guide Lyra.exe • Objectif : exfiltrer un fragment Kali</div>
+            <div class="subtitle">
+              Simulation réseau — guidé par Lyra.exe. Objectif : exfiltrer un fragment Kali sans te faire griller.
+            </div>
           </div>
         </div>
 
-        <div class="det-top" aria-hidden>
+        <div class="det-top" aria-hidden="true">
           <div class="det-label">Détection</div>
           <div class="det-wrap" title="Niveau de détection par l'Alliance">
             <div id="detFill" class="det-fill"></div>
           </div>
-          <div id="detText" class="muted">0% — discret</div>
+          <div id="detText">0% — discret</div>
         </div>
       </div>
 
-      <div id="netmap" aria-hidden>
+      <div id="netmap" aria-hidden="true">
         <svg id="svgMap" viewBox="0 0 1000 600" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg">
           <defs>
             <linearGradient id="linkGradient" x1="0" x2="1">
@@ -113,41 +306,42 @@
               <stop offset="100%" stop-color="#00e0ff" stop-opacity="0.0"/>
             </linearGradient>
           </defs>
+
           <g id="links"></g>
           <g id="packets"></g>
 
           <g id="node-edge" class="node" transform="translate(120,320)" cursor="pointer">
-            <rect class="node-rect" x="-36" y="-28" width="160" height="64" rx="10" ry="10"></rect>
+            <rect class="node-rect" x="-36" y="-28" width="160" height="64"></rect>
             <text class="node-text" x="-24" y="-6">Edge</text>
             <text class="node-sub" x="-24" y="12">Gateway</text>
           </g>
 
           <g id="node-proxy" class="node" transform="translate(320,220)" cursor="pointer">
-            <rect class="node-rect" x="-36" y="-28" width="160" height="64" rx="10" ry="10"></rect>
+            <rect class="node-rect" x="-36" y="-28" width="160" height="64"></rect>
             <text class="node-text" x="-24" y="-6">Proxy</text>
             <text class="node-sub" x="-24" y="12">WAF / DMZ</text>
           </g>
 
           <g id="node-app" class="node" transform="translate(560,180)" cursor="pointer">
-            <rect class="node-rect" x="-36" y="-28" width="160" height="64" rx="10" ry="10"></rect>
+            <rect class="node-rect" x="-36" y="-28" width="160" height="64"></rect>
             <text class="node-text" x="-24" y="-6">App</text>
             <text class="node-sub" x="-24" y="12">Application</text>
           </g>
 
           <g id="node-db" class="node" transform="translate(820,260)" cursor="pointer">
-            <rect class="node-rect" x="-36" y="-28" width="160" height="64" rx="10" ry="10"></rect>
+            <rect class="node-rect" x="-36" y="-28" width="160" height="64"></rect>
             <text class="node-text" x="-24" y="-6">DB</text>
             <text class="node-sub" x="-24" y="12">Kali DC</text>
           </g>
 
           <g id="node-ids" class="node" transform="translate(420,380)" cursor="pointer">
-            <rect class="node-rect" x="-36" y="-28" width="140" height="60" rx="10" ry="10"></rect>
+            <rect class="node-rect" x="-36" y="-28" width="140" height="60"></rect>
             <text class="node-text" x="-24" y="-6">IDS</text>
             <text class="node-sub" x="-24" y="12">SIEM</text>
           </g>
 
           <g id="node-mail" class="node" transform="translate(660,360)" cursor="pointer">
-            <rect class="node-rect" x="-36" y="-28" width="140" height="60" rx="10" ry="10"></rect>
+            <rect class="node-rect" x="-36" y="-28" width="140" height="60"></rect>
             <text class="node-text" x="-24" y="-6">Mail</text>
             <text class="node-sub" x="-24" y="12">Mail server</text>
           </g>
@@ -163,34 +357,50 @@
 
       <div class="panel">
         <h3>Nœud sélectionné</h3>
-        <div id="selected-info" class="selected-info">Clique sur un nœud à gauche pour voir ses détails.</div>
+        <div id="selected-info" class="selected-info">
+          Clique sur un nœud à gauche pour voir ses détails et lancer tes actions.
+        </div>
 
         <div class="actions" role="toolbar" aria-label="Actions">
-          <button id="btn-scan" class="btn">SCAN <div style="font-size:11px;color:var(--muted)">faible risque</div></button>
-          <button id="btn-probe" class="btn">PROBE <div style="font-size:11px;color:var(--muted)">risque moyen</div></button>
-          <button id="btn-exploit" class="btn">EXPLOIT <div style="font-size:11px;color:var(--muted)">risque élevé</div></button>
-          <button id="btn-cover" class="btn ghost">COVER <div style="font-size:11px;color:var(--muted)">nettoyer traces</div></button>
+          <button id="btn-scan" class="btn">
+            SCAN
+            <div style="font-size:11px;color:var(--muted)">analyse discrète</div>
+          </button>
+          <button id="btn-probe" class="btn">
+            PROBE
+            <div style="font-size:11px;color:var(--muted)">fingerprint ciblé</div>
+          </button>
+          <button id="btn-exploit" class="btn">
+            EXPLOIT
+            <div style="font-size:11px;color:var(--muted)">accès risqué</div>
+          </button>
+          <button id="btn-cover" class="btn ghost">
+            COVER
+            <div style="font-size:11px;color:var(--muted)">effacer tes traces</div>
+          </button>
         </div>
 
         <div class="bottom-actions">
-          <div class="muted">Chaîne logique : <strong style="color:var(--gold)">Edge → Proxy → App → DB</strong></div>
-          <div style="display:flex;gap:8px">
-            <button id="btn-mute" class="btn small">Mute</button>
+          <div class="muted">
+            Chaîne logique :
+            <strong style="color:var(--gold)">Edge → Proxy → App → DB</strong>
+          </div>
+          <div>
             <button id="btn-reset" class="btn small">Reset</button>
           </div>
         </div>
       </div>
 
-      <div class="panel" style="display:flex;flex-direction:column;gap:8px">
+      <div class="panel">
         <div style="display:flex;justify-content:space-between;align-items:center">
           <div class="muted">Objectifs</div>
           <div style="font-size:13px;color:var(--accent)">Simulation réaliste</div>
         </div>
         <ol style="color:var(--muted);margin:0;padding-left:18px">
-          <li>Ne pas dépasser <strong>100%</strong> de détection</li>
-          <li>Compromettre dans l'ordre logique (Edge→Proxy→App→DB)</li>
-          <li>Éviter fixes & services annexes (IDS/Mail)</li>
-          <li>Exfiltrer le fragment de Kali proprement</li>
+          <li>Ne pas dépasser <strong>100%</strong> de détection.</li>
+          <li>Compromettre dans l'ordre logique (Edge → Proxy → App → DB).</li>
+          <li>Éviter de brûler des exploits sur IDS / Mail (bruit inutile).</li>
+          <li>Exfiltrer le fragment de Kali proprement.</li>
         </ol>
       </div>
     </div>
@@ -198,7 +408,10 @@
     <div id="overlay-fail" class="overlay" role="alert">
       <div class="card">
         <h2>INTRUSION DÉTECTÉE</h2>
-        <p>Les capteurs de l'Alliance ont triangulé ton trafic — session terminée. Réessaie avec moins de bruit et une meilleure chaîne de pivots.</p>
+        <p>
+          Les capteurs de l'Alliance ont triangulé ton trafic — session terminée.
+          Réessaie avec moins de bruit et une chaîne de pivots plus propre.
+        </p>
         <div style="display:flex;justify-content:center;margin-top:12px">
           <button id="retryFail" class="btn">Relancer</button>
         </div>
@@ -208,7 +421,10 @@
     <div id="overlay-win" class="overlay" role="status">
       <div class="card">
         <h2>ACCÈS KALI // VALIDÉ</h2>
-        <p>Chaîne compromise proprement — fragment de Kali exfiltré. Bravo. Utilise ce succès pour débloquer la suite.</p>
+        <p>
+          Tu as suivi la chaîne idéale Edge → Proxy → App → DB en maîtrisant ta signature.
+          Fragment de Kali exfiltré. Utilise ce succès pour débloquer la suite.
+        </p>
         <div style="display:flex;justify-content:center;margin-top:12px">
           <button id="retryWin" class="btn">Rejouer</button>
         </div>
@@ -217,9 +433,7 @@
   </div>
 
   <script>
-  /* ---------- Akira Breach Ops (Realistic + richer WebAudio ambiance) ---------- */
   (function(){
-    // Elements
     const detFill = document.getElementById('detFill');
     const detText = document.getElementById('detText');
     const logEl = document.getElementById('log');
@@ -231,33 +445,52 @@
     const btnProbe = document.getElementById('btn-probe');
     const btnExploit = document.getElementById('btn-exploit');
     const btnCover = document.getElementById('btn-cover');
-    const btnMute = document.getElementById('btn-mute');
     const btnReset = document.getElementById('btn-reset');
-
     const retryFail = document.getElementById('retryFail');
     const retryWin = document.getElementById('retryWin');
 
-    // nodes/links
-    const nodes = { edge:{id:'edge',name:'Passerelle Edge',status:'intact'}, proxy:{id:'proxy',name:'Proxy DMZ',status:'intact'},
-      app:{id:'app',name:'Serveur Applicatif',status:'intact'}, db:{id:'db',name:'Base Kali DC',status:'intact'},
-      ids:{id:'ids',name:'IDS / SIEM',status:'intact'}, mail:{id:'mail',name:'Serveur Mail',status:'intact'} };
-    const links = [['edge','proxy'], ['proxy','app'], ['app','db'], ['proxy','ids'], ['app','mail']];
+    const nodes = {
+      edge:{id:'edge', name:'Passerelle Edge', status:'intact'},
+      proxy:{id:'proxy',name:'Proxy DMZ',status:'intact'},
+      app:{id:'app',name:'Serveur Applicatif',status:'intact'},
+      db:{id:'db',name:'Base Kali DC',status:'intact'},
+      ids:{id:'ids',name:'IDS / SIEM',status:'intact'},
+      mail:{id:'mail',name:'Serveur Mail',status:'intact'}
+    };
+
+    const links = [
+      ['edge','proxy'],
+      ['proxy','app'],
+      ['app','db'],
+      ['proxy','ids'],
+      ['app','mail']
+    ];
     const chain = ['edge','proxy','app','db'];
 
-    let state = { detection:0, compromised:[], selected:null, locked:false, muted:false };
+    let state = {
+      detection:0,
+      compromised:[],
+      selected:null,
+      locked:false
+    };
 
-    /* --- Logging with typing effect --- */
     function pushLog(cls,text,delay=0){
       const line = document.createElement('div');
       line.className = 'log-line ' + (cls ? 'log-'+cls : '');
       line.textContent = '';
       logEl.appendChild(line);
-      let i=0; const speed=6 + Math.random()*6;
-      function tick(){ if(i<text.length){ line.textContent += text[i++]; logEl.scrollTop = logEl.scrollHeight; setTimeout(tick,speed);} }
+      let i=0;
+      const speed = 6 + Math.random()*6;
+      function tick(){
+        if(i<text.length){
+          line.textContent += text[i++];
+          logEl.scrollTop = logEl.scrollHeight;
+          setTimeout(tick,speed);
+        }
+      }
       setTimeout(tick,delay);
     }
 
-    /* --- Detection UI --- */
     function setDetection(delta){
       state.detection = Math.max(0, Math.min(100, Math.round((state.detection + delta)*100)/100));
       detFill.style.width = state.detection + '%';
@@ -268,7 +501,6 @@
       if(state.detection >= 100) fail();
     }
 
-    /* --- Node selection --- */
     function selectNode(id){
       if(state.locked) return;
       state.selected = id;
@@ -276,27 +508,29 @@
       const g = document.getElementById('node-'+id);
       if(g) g.classList.add('selected');
       const n = nodes[id];
-      selectedInfo.innerHTML = '<strong>'+n.name+'</strong><br><span style="color:var(--muted)">'+n.status+'</span>';
+      selectedInfo.innerHTML =
+        '<strong>'+n.name+'</strong><br><span style="color:var(--muted)">'+n.status+'</span>';
       pushLog('sys','Ciblé : '+n.name);
     }
+
     Object.keys(nodes).forEach(id=>{
       const el = document.getElementById('node-'+id);
       if(!el) return;
       el.style.cursor='pointer';
       el.addEventListener('click',()=>selectNode(id));
-      el.addEventListener('mouseenter',()=>{ el.classList.add('hover'); });
-      el.addEventListener('mouseleave',()=>{ el.classList.remove('hover'); });
     });
 
-    /* --- Actions --- */
     function markDetected(id){
       const g = document.getElementById('node-'+id);
       if(g) g.classList.add('detected');
-      pushLog('bad','[IDS] Signatures anormales détectées autour de '+nodes[id].name);
+      pushLog('bad','[IDS] Anomalies détectées autour de '+nodes[id].name);
     }
     function markCompromised(id){
       const g = document.getElementById('node-'+id);
-      if(g){ g.classList.add('compromised'); g.classList.remove('detected'); }
+      if(g){
+        g.classList.add('compromised');
+        g.classList.remove('detected');
+      }
     }
     function updateHUD(){
       pushLog('lyra','Fragments récupérés : '+state.compromised.length+'/'+chain.length);
@@ -310,64 +544,98 @@
         pushLog('ok','[SCAN] Analyse discrète sur '+nodes[target].name+' — surface exploitable.');
         setDetection(3 + Math.random()*2);
       } else {
-        pushLog('bad','[SCAN] Analyse sur '+nodes[target].name+' — bruit détecté.');
-        markDetected(target); setDetection(8 + Math.random()*4);
+        pushLog('bad','[SCAN] Scan bruyant sur '+nodes[target].name);
+        markDetected(target);
+        setDetection(8 + Math.random()*4);
       }
     }
+
     function probe(){
       if(!state.selected || state.locked) return;
       const target = state.selected;
       const correct = chain[state.compromised.length] === target;
       if(correct){
-        pushLog('ok','[PROBE] Empreinte approfondie sur '+nodes[target].name+' — vulnérabilité probable.');
+        pushLog('ok','[PROBE] Fingerprint ciblé sur '+nodes[target].name+' — vulnérabilité probable.');
         setDetection(6 + Math.random()*4);
       } else {
-        pushLog('bad','[PROBE] Fingerprint agressif sur '+nodes[target].name+' — corrélation SIEM.');
-        markDetected(target); setDetection(12 + Math.random()*6);
+        pushLog('bad','[PROBE] Empreinte agressive sur '+nodes[target].name+' — SIEM en alerte.');
+        markDetected(target);
+        setDetection(12 + Math.random()*6);
       }
     }
+
     function exploit(){
       if(!state.selected || state.locked) return;
       const target = state.selected;
-      if(state.compromised.includes(target)){ pushLog('sys','[EXPLOIT] '+nodes[target].name+' est déjà compromis.'); setDetection(2); return; }
+      if(state.compromised.includes(target)){
+        pushLog('sys','[EXPLOIT] '+nodes[target].name+' est déjà sous contrôle.');
+        setDetection(2);
+        return;
+      }
       const expected = chain[state.compromised.length];
       if(target === expected){
-        state.compromised.push(target); markCompromised(target);
-        pushLog('ok','[EXPLOIT] Accès obtenu sur '+nodes[target].name+' — pivot accepté ('+state.compromised.length+'/'+chain.length+')');
+        state.compromised.push(target);
+        markCompromised(target);
+        pushLog('ok','[EXPLOIT] Accès obtenu sur '+nodes[target].name+' — pivot validé ('+state.compromised.length+'/'+chain.length+').');
         setDetection(10 + Math.random()*4);
         if(target === 'db') win();
       } else {
-        pushLog('bad','[EXPLOIT] Tentative brute sur '+nodes[target].name+' — alerte critique.');
-        markDetected(target); setDetection(20 + Math.random()*6);
+        pushLog('bad','[EXPLOIT] Tentative hors séquence sur '+nodes[target].name+' — alerte critique.');
+        markDetected(target);
+        setDetection(20 + Math.random()*6);
       }
       updateHUD();
     }
+
     function cover(){
       if(state.locked) return;
-      if(state.detection <= 0){ pushLog('sys','[COVER] Rien à effacer.'); return; }
+      if(state.detection <= 0){
+        pushLog('sys','[COVER] Rien à nettoyer. Tu es propre.');
+        return;
+      }
       const reduce = 12 + Math.random()*6;
       state.detection = Math.max(0, state.detection - reduce);
-      setDetection(0); detFill.style.width = state.detection + '%';
-      pushLog('ok','[COVER] Logs nettoyés : -'+Math.round(reduce)+'% détection.');
+      detFill.style.width = state.detection + '%';
+      detText.textContent = state.detection + '% — discrétion améliorée';
+      pushLog('ok','[COVER] Effacement des logs : -'+Math.round(reduce)+'% détection.');
     }
 
-    function fail(){ state.locked = true; pushLog('bad','[SYS] Détection à 100% — session terminée.'); overlayFail.style.display = 'flex'; }
-    function win(){ state.locked = true; pushLog('ok','[SYS] Chaîne compromise. Exfiltration OK.'); overlayWin.style.display = 'flex'; }
+    function fail(){
+      state.locked = true;
+      pushLog('bad','[SYS] Détection à 100% — session coupée.');
+      overlayFail.style.display = 'flex';
+    }
 
-    btnScan.addEventListener('click', scan);
-    btnProbe.addEventListener('click', probe);
-    btnExploit.addEventListener('click', exploit);
-    btnCover.addEventListener('click', cover);
-    btnReset.addEventListener('click', ()=>{ reset(); });
-    retryFail.addEventListener('click', ()=>{ reset(); overlayFail.style.display='none'; });
-    retryWin.addEventListener('click', ()=>{ reset(); overlayWin.style.display='none'; });
+    function win(){
+      state.locked = true;
+      pushLog('ok','[SYS] Chaîne Edge → Proxy → App → DB compromise proprement. Fragment exfiltré.');
+      overlayWin.style.display = 'flex';
+    }
 
-    selectNode('edge');
-    pushLog('sys','Topologie Akira loaded.');
-    pushLog('lyra','Clique sur Edge puis utilises SCAN → PROBE → EXPLOIT dans cet ordre.');
-    pushLog('sys','Astuce : COVER réduit la détection.');
+    function reset(){
+      state = { detection:0, compromised:[], selected:null, locked:false };
+      detFill.style.width = '0%';
+      detText.textContent = '0% — discret';
+      logEl.innerHTML = '';
+      document.querySelectorAll('#svgMap g.node').forEach(g=>{
+        g.classList.remove('compromised','detected','selected');
+      });
+      overlayFail.style.display = 'none';
+      overlayWin.style.display = 'none';
+      pushLog('sys','Simulation réinitialisée.');
+      pushLog('lyra','Lyra.exe : on repart propre. Suis la chaîne logique.');
+      selectNode('edge');
+    }
 
-    /* ---------- SVG links + animated packets ---------- */
+    btnScan.addEventListener('click',scan);
+    btnProbe.addEventListener('click',probe);
+    btnExploit.addEventListener('click',exploit);
+    btnCover.addEventListener('click',cover);
+    btnReset.addEventListener('click',reset);
+    retryFail.addEventListener('click',reset);
+    retryWin.addEventListener('click',reset);
+
+    // Build links & packets
     const svgNS = "http://www.w3.org/2000/svg";
     const linksGroup = document.getElementById('links');
     const packetsGroup = document.getElementById('packets');
@@ -384,190 +652,64 @@
       const by = +bTrans.match(/translate\(([^,]+),([^)\)]+)\)/)[2];
       const x1 = ax + 44, y1 = ay;
       const x2 = bx - 44, y2 = by;
+
       const path = document.createElementNS(svgNS,'path');
       path.setAttribute('d', `M ${x1} ${y1} C ${x1+80} ${y1-40}, ${x2-80} ${y2-40}, ${x2} ${y2}`);
       path.setAttribute('class','link-line');
       linksGroup.appendChild(path);
+
       const ghost = document.createElementNS(svgNS,'path');
       ghost.setAttribute('d', `M ${x1} ${y1} L ${x2} ${y2}`);
-      ghost.setAttribute('class','link-ghost'); linksGroup.appendChild(ghost);
+      ghost.setAttribute('class','link-ghost');
+      linksGroup.appendChild(ghost);
+
       const pathLen = path.getTotalLength();
-      setInterval(()=>{ if(state.locked) return; spawnPacket(path, pathLen, Math.random()*0.9 + 0.5); }, 700 + Math.random()*1600);
+      setInterval(()=>{
+        if(state.locked) return;
+        spawnPacket(path, pathLen, Math.random()*0.9 + 0.5);
+      }, 700 + Math.random()*1600);
     }
 
     function spawnPacket(pathElem, pathLen, speed){
-      const circle = document.createElementNS(svgNS,'circle'); circle.setAttribute('r', 4); circle.setAttribute('class','packet'); packetsGroup.appendChild(circle);
-      let t = 0; const dir = (Math.random() < 0.55) ? 1 : -1;
+      const circle = document.createElementNS(svgNS,'circle');
+      circle.setAttribute('r', 4);
+      circle.setAttribute('class','packet');
+      packetsGroup.appendChild(circle);
+
+      let t = 0;
+      const dir = (Math.random() < 0.55) ? 1 : -1;
       function step(){
         if(!circle.parentNode) return;
         t += 0.01 * speed * (1 + state.detection/200);
         const d = (dir === 1) ? t * pathLen : (1 - t) * pathLen;
         const p = pathElem.getPointAtLength(Math.max(0, Math.min(pathLen, d)));
-        circle.setAttribute('cx', p.x); circle.setAttribute('cy', p.y);
+        circle.setAttribute('cx', p.x);
+        circle.setAttribute('cy', p.y);
         circle.style.opacity = 0.9 - Math.abs(0.5 - t);
-        if(t < 1) requestAnimationFrame(step); else circle.remove();
+        if(t < 1){
+          requestAnimationFrame(step);
+        } else {
+          circle.remove();
+        }
       }
       requestAnimationFrame(step);
     }
-    links.forEach(pair=> makeLink(pair[0], pair[1]));
 
-    /* ---------- WebAudio: richer ambient (pad + arp + beat texture) ---------- */
-    // We'll init audio on first user gesture to satisfy browser autoplay policies.
-    let audioCtx = null;
-    let masterGain = null;
-    // nodes
-    let padOsc=[], padFilter, padGain;
-    let arpOsc = null, arpGain;
-    let noiseSource = null, noiseFilter, noiseGain;
-    let lfo = null;
+    links.forEach(pair => makeLink(pair[0], pair[1]));
 
-    // helper: create audio graph
-    function createAudioGraph(){
-      try {
-        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        masterGain = audioCtx.createGain();
-        masterGain.gain.value = 0.02; // default overall volume (adjustable)
-        masterGain.connect(audioCtx.destination);
-
-        /* PAD: 2 saw oscillators + lowpass for warmth */
-        padOsc = [audioCtx.createOscillator(), audioCtx.createOscillator()];
-        padOsc[0].type = 'sawtooth'; padOsc[0].frequency.value = 40;
-        padOsc[1].type = 'sawtooth'; padOsc[1].frequency.value = 82;
-        padGain = audioCtx.createGain(); padGain.gain.value = 0.45;
-        padFilter = audioCtx.createBiquadFilter(); padFilter.type = 'lowpass'; padFilter.frequency.value = 1200;
-        padOsc.forEach(o=>{ o.connect(padGain); });
-        padGain.connect(padFilter);
-        padFilter.connect(masterGain);
-        padOsc.forEach(o=> o.start());
-
-        // subtle LFO modulating pad filter for movement
-        lfo = audioCtx.createOscillator(); lfo.type='sine'; lfo.frequency.value = 0.08;
-        const lfoGain = audioCtx.createGain(); lfoGain.gain.value = 300;
-        lfo.connect(lfoGain); lfoGain.connect(padFilter.frequency);
-        lfo.start();
-
-        /* ARP: short triangle notes triggered periodically */
-        arpGain = audioCtx.createGain(); arpGain.gain.value = 0.0; arpGain.connect(masterGain);
-
-        /* NOISE / KICK texture */
-        const bufferSize = 2 * audioCtx.sampleRate; const noiseBuffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
-        const output = noiseBuffer.getChannelData(0);
-        for (let i = 0; i < bufferSize; i++) output[i] = (Math.random() * 2 - 1) * 0.3;
-        noiseSource = audioCtx.createBufferSource(); noiseSource.buffer = noiseBuffer; noiseSource.loop = true;
-        noiseFilter = audioCtx.createBiquadFilter(); noiseFilter.type = 'bandpass'; noiseFilter.frequency.value = 180;
-        noiseGain = audioCtx.createGain(); noiseGain.gain.value = 0.0015;
-        noiseSource.connect(noiseFilter); noiseFilter.connect(noiseGain); noiseGain.connect(masterGain);
-        noiseSource.start();
-
-        // slight stereo/p sfx not needed now
-        console.info('AudioContext initialised — ambient layers ready.');
-        return true;
-      } catch(e){
-        console.warn('Audio init failed:', e); return false;
-      }
-    }
-
-    // ARP scheduler: simple periodic notes using an array of frequencies (minor-ish)
-    const arpScale = [220, 246.94, 261.63, 293.66, 329.63]; // A, B, C, D, E
-    let arpInterval = null;
-    function startArp(){
-      if(!audioCtx) return;
-      if(arpInterval) clearInterval(arpInterval);
-      arpInterval = setInterval(()=> {
-        const freq = arpScale[Math.floor(Math.random()*arpScale.length)] * (Math.random() < 0.6 ? 1 : 0.5);
-        const o = audioCtx.createOscillator();
-        o.type = 'triangle'; o.frequency.value = freq;
-        const g = audioCtx.createGain(); g.gain.value = 0.0;
-        o.connect(g); g.connect(arpGain);
-        const now = audioCtx.currentTime;
-        g.gain.setValueAtTime(0.0, now);
-        g.gain.linearRampToValueAtTime(0.09, now + 0.02);
-        g.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
-        o.start(now); o.stop(now + 0.5);
-      }, 420 + Math.random()*260);
-    }
-
-    // toggle master mute (via smooth gain)
-    function setMasterVolume(v){
-      if(!masterGain || !audioCtx) return;
-      masterGain.gain.setTargetAtTime(v, audioCtx.currentTime, 0.03);
-    }
-
-    // start audio after gesture, set up graph
-    let audioStarted = false;
-    function enableAudio(){
-      if(audioStarted) return;
-      const ok = createAudioGraph();
-      if(!ok) return;
-      // expose debug api
-      window._ctc_audio = {
-        setVolume(v){ setMasterVolume(Number(v) || 0.02); },
-        status(){ return {state: audioCtx.state, gain: masterGain ? masterGain.gain.value : null}; },
-        resume(){ if(audioCtx && audioCtx.state === 'suspended') audioCtx.resume(); },
-        suspend(){ if(audioCtx && audioCtx.state === 'running') audioCtx.suspend(); }
-      };
-      // ramp pad volume in gently
-      padGain.gain.setValueAtTime(0.01, audioCtx.currentTime);
-      padGain.gain.linearRampToValueAtTime(0.48, audioCtx.currentTime + 2.2);
-      // start arp
-      startArp();
-      audioStarted = true;
-      // set master depending on muted state
-      if(state.muted) setMasterVolume(0.00001); else setMasterVolume(0.02);
-      updateMuteButton();
-    }
-
-    // visible "Activer le son" button (fallback and explicit affordance)
-    const soundButton = document.createElement('button');
-    soundButton.textContent = 'Activer le son';
-    soundButton.className = 'btn small';
-    soundButton.style.position = 'absolute'; soundButton.style.right = '18px';
-    soundButton.style.top = '18px'; soundButton.style.zIndex = 50;
-    document.body.appendChild(soundButton);
-    soundButton.style.display = 'none';
-
-    // first gesture auto-attempt
-    function onFirstGesture(){
-      document.removeEventListener('pointerdown', onFirstGesture);
-      try { enableAudio(); soundButton.style.display='none'; } catch(e){ soundButton.style.display='inline-block'; }
-    }
-    document.addEventListener('pointerdown', onFirstGesture);
-    setTimeout(()=>{ if(!audioStarted) soundButton.style.display='inline-block'; }, 1800);
-
-    soundButton.addEventListener('click', function(){ enableAudio(); soundButton.style.display='none'; });
-
-    // Mute button behaviour
-    function updateMuteButton(){
-      if(!audioStarted){ btnMute.textContent = 'Mute'; return; }
-      btnMute.textContent = (state.muted ? 'Unmute' : 'Mute');
-    }
-    btnMute.addEventListener('click', ()=>{
-      if(!audioStarted){ enableAudio(); setTimeout(()=>{ state.muted = false; updateMuteButton(); }, 200); return; }
-      state.muted = !state.muted;
-      setMasterVolume(state.muted ? 0.00001 : 0.02);
-      updateMuteButton();
+    // Shortcuts clavier
+    window.addEventListener('keydown',e=>{
+      if(e.key==='1') scan();
+      if(e.key==='2') probe();
+      if(e.key==='3') exploit();
+      if(e.key==='4') cover();
+      if(e.key==='r') reset();
     });
 
-    /* ---------- Reset / utility ---------- */
-    function reset(){
-      state = { detection:0, compromised:[], selected:null, locked:false, muted:state.muted || false };
-      detFill.style.width = '0%'; detText.textContent = '0% — discret'; logEl.innerHTML = '';
-      document.querySelectorAll('#svgMap g.node').forEach(g=> g.classList.remove('compromised','detected','selected'));
-      overlayFail.style.display = 'none'; overlayWin.style.display = 'none';
-      pushLog('sys','Simulation réinitialisée.'); pushLog('lyra','Lyra en ligne. Recommence avec moins de bruit.');
-    }
-
-    // keyboard shortcuts
-    window.addEventListener('keydown',(e)=>{
-      if(e.key === '1') scan();
-      if(e.key === '2') probe();
-      if(e.key === '3') exploit();
-      if(e.key === '4') cover();
-      if(e.key === 'r') reset();
-    });
-
-    // expose API
-    window._ctc = { state, reset, spawnPacket: null };
+    // Init
+    pushLog('sys','Topologie Akira chargée.');
+    pushLog('lyra','Commence par Edge. Si tu tapes l\'IDS en premier, je me déconnecte.');
+    selectNode('edge');
   })();
   </script>
 </body>
