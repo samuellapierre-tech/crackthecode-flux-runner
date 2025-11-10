@@ -1,0 +1,520 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <title>CrackTheCode — Flux Runner</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <style>
+    :root{
+      --bg:#02030a;
+      --accent:#b35cff;
+      --accent2:#ffd23f;
+      --neon:#39ff14;
+      --text:#e6eef8;
+      --muted:#9aa6b2;
+      font-family:"Fira Code","Inconsolata",ui-monospace,monospace;
+    }
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{
+      background:radial-gradient(circle at top,#160b33,#02030a 40%,#000 100%);
+      color:var(--text);
+      display:flex;
+      justify-content:center;
+      padding:18px;
+    }
+    .wrapper{
+      width:100%;
+      max-width:1200px;
+    }
+    h1{
+      font-size:20px;
+      color:var(--accent);
+      margin-bottom:4px;
+      text-shadow:0 0 12px rgba(179,92,255,0.8);
+    }
+    .subtitle{
+      font-size:11px;
+      color:var(--muted);
+      margin-bottom:8px;
+    }
+    .topbar{
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-end;
+      gap:12px;
+      margin-bottom:8px;
+      flex-wrap:wrap;
+    }
+    .cta{
+      font-size:10px;
+      color:var(--muted);
+    }
+    .cta span{
+      color:var(--accent2);
+    }
+    #gameContainer{
+      position:relative;
+      width:100%;
+      border-radius:14px;
+      overflow:hidden;
+      box-shadow:0 16px 48px rgba(0,0,0,0.9);
+      border:1px solid rgba(179,92,255,0.3);
+      background:#02030a;
+    }
+    canvas{
+      display:block;
+      width:100%;
+      height:auto;
+      background:transparent;
+      image-rendering:pixelated;
+      cursor:crosshair;
+    }
+    .hud{
+      position:absolute;
+      top:8px;
+      left:10px;
+      right:10px;
+      display:flex;
+      justify-content:space-between;
+      font-size:10px;
+      pointer-events:none;
+      color:var(--muted);
+      text-shadow:0 0 6px #000;
+    }
+    .hud span.label{color:var(--accent2);}
+    .msg{
+      position:absolute;
+      bottom:8px;
+      left:10px;
+      right:10px;
+      font-size:10px;
+      color:var(--muted);
+      text-shadow:0 0 5px #000;
+      pointer-events:none;
+    }
+    .btn-restart{
+      position:absolute;
+      top:50%;
+      left:50%;
+      transform:translate(-50%,-50%);
+      padding:8px 14px;
+      border-radius:10px;
+      background:radial-gradient(circle at top,var(--accent),var(--accent2));
+      color:#050509;
+      font-size:11px;
+      border:none;
+      cursor:pointer;
+      box-shadow:0 8px 24px rgba(0,0,0,0.9);
+      display:none;
+      z-index:5;
+    }
+    .btn-restart:hover{
+      transform:translate(-50%,-52%);
+    }
+    @media(max-width:768px){
+      h1{font-size:18px;}
+      .subtitle{font-size:10px;}
+    }
+  </style>
+</head>
+<body>
+<div class="wrapper">
+  <div class="topbar">
+    <div>
+      <h1>Flux Runner — Akira City Breach</h1>
+      <div class="subtitle">
+        Infiltre le réseau d&rsquo;Akira City. Sam court dans le flux, Lyra.exe te guide. Évite les drones, pirate les nœuds, trouve Kali.
+      </div>
+    </div>
+    <div class="cta">
+      Contrôles : <span>Q / D</span> ou <span>← / →</span> pour bouger,
+      <span>Espace</span> pour sauter (double saut possible),
+      <span>E</span> pour hacker un nœud.
+    </div>
+  </div>
+
+  <div id="gameContainer">
+    <canvas id="game" width="960" height="360"></canvas>
+    <div class="hud">
+      <div>
+        <span class="label">Sam :</span> <span id="hud-status">ON-LINE</span> |
+        <span class="label">Nœuds hackés :</span> <span id="hud-nodes">0/3</span>
+      </div>
+      <div>
+        <span class="label">Lyra.exe :</span> <span id="hud-lyra">"Connexion stable."</span>
+      </div>
+    </div>
+    <div class="msg" id="hud-msg">
+      Objectif : avance vers la droite, approche un nœud violet et appuie sur <b>E</b> pour le hacker. Hacke les 3 nœuds, puis atteins le Core (grand pilier néon).
+    </div>
+    <button class="btn-restart" id="btn-restart">Rejouer la mission</button>
+  </div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  const canvas = document.getElementById("game");
+  const ctx = canvas.getContext("2d");
+
+  const hudStatus = document.getElementById("hud-status");
+  const hudNodes  = document.getElementById("hud-nodes");
+  const hudLyra   = document.getElementById("hud-lyra");
+  const hudMsg    = document.getElementById("hud-msg");
+  const btnRestart= document.getElementById("btn-restart");
+
+  const W = canvas.width;
+  const H = canvas.height;
+
+  // Monde
+  const levelLength = 3200; // largeur virtuelle
+  const groundY = H - 60;
+
+  // Joueur (Sam)
+  const player = {
+    x: 80,
+    y: groundY - 40,
+    w: 26,
+    h: 40,
+    vx: 0,
+    vy: 0,
+    speed: 3.0,
+    jumpForce: 7,
+    color: "#ffd23f",
+    onGround: false,
+    canDouble: true,
+    alive: true,
+    reachedCore: false
+  };
+
+  // Nœuds à hacker
+  const nodes = [
+    { x: 600,  y: groundY - 70, w:18,h:40, hacked:false },
+    { x: 1350, y: groundY - 70, w:18,h:40, hacked:false },
+    { x: 2100, y: groundY - 70, w:18,h:40, hacked:false },
+  ];
+
+  // Core final
+  const core = { x: 2850, y: groundY - 120, w:40, h:120 };
+
+  // Obstacles : lasers & drones
+  const lasers = [
+    { x: 900,  y: groundY - 20, w:90, h:6 },
+    { x: 1650, y: groundY - 40, w:110,h:6 },
+    { x: 2400, y: groundY - 25, w:80, h:6 },
+  ];
+
+  const drones = [
+    { x: 1150, y: groundY - 120, w:26,h:16, dir:1, range:60, baseX:1150 },
+    { x: 1900, y: groundY - 130, w:26,h:16, dir:-1,range:80, baseX:1900 },
+  ];
+
+  // Input
+  const keys = {};
+  window.addEventListener("keydown", e => {
+    keys[e.key.toLowerCase()] = true;
+  });
+  window.addEventListener("keyup", e => {
+    keys[e.key.toLowerCase()] = false;
+  });
+
+  // Helpers
+  function rectsOverlap(a,b){
+    return !(a.x+a.w < b.x || a.x > b.x+b.w || a.y+a.h < b.y || a.y > b.y+b.h);
+  }
+
+  // Init
+  function resetGame(){
+    player.x = 80;
+    player.y = groundY - 40;
+    player.vx = 0;
+    player.vy = 0;
+    player.onGround = false;
+    player.canDouble = true;
+    player.alive = true;
+    player.reachedCore = false;
+    nodes.forEach(n => n.hacked = false);
+    hudStatus.textContent = "ON-LINE";
+    hudNodes.textContent = "0/3";
+    hudLyra.textContent = '"Connexion stable."';
+    hudMsg.innerHTML = 'Objectif : avance vers la droite, approche un nœud violet et appuie sur <b>E</b>. Évite les lasers et drones.';
+    btnRestart.style.display = "none";
+  }
+
+  resetGame();
+
+  // Game Loop
+  let last = performance.now();
+  function loop(ts){
+    const dt = Math.min((ts - last)/16.67, 2);
+    last = ts;
+    update(dt);
+    draw();
+    requestAnimationFrame(loop);
+  }
+  requestAnimationFrame(loop);
+
+  function update(dt){
+    // Pas de logique si "cinématique" fin / mort, sauf restart
+    if(!player.alive || player.reachedCore){
+      return;
+    }
+
+    // Mouvement horizontal
+    let moving = 0;
+    if(keys["arrowleft"] || keys["q"]) moving = -1;
+    if(keys["arrowright"] || keys["d"]) moving = 1;
+
+    player.vx = moving * player.speed;
+
+    // Saut
+    if((keys[" "] || keys["space"]) && player.onGround){
+      player.vy = -player.jumpForce;
+      player.onGround = false;
+      player.canDouble = true;
+      keys[" "] = keys["space"] = false;
+    } else if((keys[" "] || keys["space"]) && player.canDouble && !player.onGround){
+      player.vy = -player.jumpForce * 0.9;
+      player.canDouble = false;
+      keys[" "] = keys["space"] = false;
+    }
+
+    // Gravité
+    player.vy += 0.4 * dt;
+    if(player.vy > 12) player.vy = 12;
+
+    // Appliquer mouvement
+    player.x += player.vx * dt;
+    player.y += player.vy * dt;
+
+    // Collisions sol
+    if(player.y + player.h >= groundY){
+      player.y = groundY - player.h;
+      player.vy = 0;
+      if(!player.onGround){
+        player.onGround = true;
+      }
+    } else {
+      player.onGround = false;
+    }
+
+    // Limites monde
+    if(player.x < 0) player.x = 0;
+    if(player.x + player.w > levelLength) player.x = levelLength - player.w;
+
+    // Hack (E)
+    if(keys["e"]){
+      tryHack();
+      keys["e"] = false;
+    }
+
+    // MàJ drones (aller-retour)
+    drones.forEach(d=>{
+      d.x += d.dir * 1.2 * dt;
+      if(d.x > d.baseX + d.range || d.x < d.baseX - d.range){
+        d.dir *= -1;
+      }
+    });
+
+    // Check mort par laser ou drone
+    const pBox = { x:player.x+4, y:player.y+4, w:player.w-8, h:player.h-8 };
+    for(const l of lasers){
+      if(rectsOverlap(pBox, l)){
+        killPlayer("[LYRA] Laser détecté... trop tard.");
+        return;
+      }
+    }
+    for(const d of drones){
+      if(rectsOverlap(pBox, d)){
+        killPlayer("[LYRA] Drone hostile, signal Sam perdu.");
+        return;
+      }
+    }
+
+    // Check Core
+    let hackedCount = nodes.filter(n=>n.hacked).length;
+    if(hackedCount === nodes.length){
+      hudNodes.textContent = hackedCount + "/3";
+      // Si Sam touche le Core après avoir tout hacké
+      if(rectsOverlap(pBox, core)){
+        player.reachedCore = true;
+        hudStatus.textContent = "LINKED";
+        hudLyra.textContent = '"Kali: signal détecté."';
+        hudMsg.innerHTML = "<b>Mission réussie :</b> Tu as brisé le premier verrou. Le prochain niveau t'attend.";
+        btnRestart.textContent = "Rejouer / Rebooter le flux";
+        btnRestart.style.display = "block";
+      }
+    } else {
+      hudNodes.textContent = hackedCount + "/3";
+    }
+  }
+
+  function tryHack(){
+    // Sam doit être proche d'un nœud
+    const range = 40;
+    let hackedSomething = false;
+    nodes.forEach(n=>{
+      if(!n.hacked){
+        if(Math.abs((player.x + player.w/2) - (n.x + n.w/2)) < range){
+          n.hacked = true;
+          hackedSomething = true;
+          hudLyra.textContent = '"Nœud sécurisé. Continue..."';
+          hudMsg.textContent = "Nœud piraté. Avance vers le prochain. (" +
+            nodes.filter(nn=>nn.hacked).length + "/3)";
+        }
+      }
+    });
+    if(hackedSomething){
+      writeToTerm("Hack réussi : fragment de clé ajouté.");
+    }
+  }
+
+  function writeToTerm(msg){
+    // Optionnel : pourrait pousser vers un overlay plus tard.
+    console.log("[FLUX] " + msg);
+  }
+
+  function killPlayer(reason){
+    player.alive = false;
+    hudStatus.textContent = "OFF-LINE";
+    hudLyra.textContent = '"Signal Sam perdu."';
+    hudMsg.innerHTML = reason + " <br>Appuie sur <b>Rejouer la mission</b>.";
+    btnRestart.style.display = "block";
+  }
+
+  // Dessin
+  function draw(){
+    // Caméra centrée sur Sam
+    const camX = Math.max(0, Math.min(player.x - W/2, levelLength - W));
+
+    ctx.clearRect(0,0,W,H);
+
+    // Fond : grille + tours néon
+    drawBackground(camX);
+
+    // Sol
+    ctx.strokeStyle = "rgba(179,92,255,0.35)";
+    ctx.beginPath();
+    ctx.moveTo(0, groundY+0.5);
+    ctx.lineTo(W, groundY+0.5);
+    ctx.stroke();
+
+    // Lasers
+    lasers.forEach(l=>{
+      const sx = l.x - camX;
+      if(sx+l.w < 0 || sx > W) return;
+      const grad = ctx.createLinearGradient(sx, l.y, sx+l.w, l.y);
+      grad.addColorStop(0,"rgba(179,92,255,0)");
+      grad.addColorStop(0.5,"rgba(255,80,120,1)");
+      grad.addColorStop(1,"rgba(179,92,255,0)");
+      ctx.fillStyle = grad;
+      ctx.fillRect(sx, l.y, l.w, l.h);
+      ctx.shadowColor = "#ff3070";
+      ctx.shadowBlur = 8;
+      ctx.fillRect(sx, l.y-1, l.w, 2);
+      ctx.shadowBlur = 0;
+    });
+
+    // Drones
+    drones.forEach(d=>{
+      const sx = d.x - camX;
+      if(sx+d.w<0 || sx>W) return;
+      ctx.fillStyle = "#39ff14";
+      ctx.fillRect(sx, d.y, d.w, d.h);
+      ctx.fillStyle = "#000";
+      ctx.fillRect(sx+4, d.y+4, 6, 4);
+      ctx.fillRect(sx+d.w-10, d.y+4, 6, 4);
+    });
+
+    // Nœuds
+    nodes.forEach(n=>{
+      const sx = n.x - camX;
+      if(sx+n.w<0 || sx>W) return;
+      if(n.hacked){
+        ctx.fillStyle = "#39ff14";
+        ctx.fillRect(sx, n.y, n.w, n.h);
+        ctx.fillStyle = "#0b1f0b";
+        ctx.fillRect(sx+4, n.y+6, n.w-8, 4);
+      } else {
+        const grad = ctx.createLinearGradient(sx, n.y, sx, n.y+n.h);
+        grad.addColorStop(0,"#b35cff");
+        grad.addColorStop(1,"#4b1d88");
+        ctx.fillStyle = grad;
+        ctx.fillRect(sx, n.y, n.w, n.h);
+        ctx.fillStyle = "#ffd23f";
+        ctx.fillRect(sx+4, n.y+4, n.w-8, 2);
+      }
+    });
+
+    // Core
+    const coreX = core.x - camX;
+    if(coreX + core.w > 0 && coreX < W){
+      const grad = ctx.createLinearGradient(coreX, core.y, coreX, core.y+core.h);
+      grad.addColorStop(0,"#b35cff");
+      grad.addColorStop(0.5,"#ffd23f");
+      grad.addColorStop(1,"#39ff14");
+      ctx.fillStyle = grad;
+      ctx.fillRect(coreX, core.y, core.w, core.h);
+      ctx.fillStyle = "rgba(0,0,0,0.4)";
+      ctx.fillRect(coreX+6, core.y+10, core.w-12, core.h-20);
+    }
+
+    // Joueur (Sam)
+    const px = player.x - camX;
+    ctx.fillStyle = player.color;
+    ctx.fillRect(px, player.y, player.w, player.h);
+    // Masque & capuche stylisée
+    ctx.fillStyle = "#04050a";
+    ctx.fillRect(px+6, player.y+6, player.w-12, 10);
+    ctx.strokeStyle = "#b35cff";
+    ctx.strokeRect(px+2, player.y+2, player.w-4, player.h-4);
+  }
+
+  function drawBackground(camX){
+    // Ciel
+    const g = ctx.createLinearGradient(0,0,0,H);
+    g.addColorStop(0,"#080819");
+    g.addColorStop(1,"#02030a");
+    ctx.fillStyle = g;
+    ctx.fillRect(0,0,W,H);
+
+    // Grille au sol
+    ctx.strokeStyle = "rgba(179,92,255,0.16)";
+    ctx.lineWidth = 1;
+    for(let x = - (camX % 40); x < W; x += 40){
+      ctx.beginPath();
+      ctx.moveTo(x, groundY);
+      ctx.lineTo(x+40, H);
+      ctx.stroke();
+    }
+    ctx.strokeStyle = "rgba(57,255,20,0.06)";
+    for(let y = groundY; y < H; y += 18){
+      ctx.beginPath();
+      ctx.moveTo(0, y);
+      ctx.lineTo(W, y);
+      ctx.stroke();
+    }
+
+    // Tours néon en arrière-plan
+    const baseX = - (camX * 0.4);
+    for(let i=0;i<12;i++){
+      const bx = (baseX + i*260) % (W+260) - 60;
+      const h = 80 + (i%4)*30;
+      if(bx > -80 && bx < W+40){
+        ctx.fillStyle = "rgba(179,92,255,0.22)";
+        ctx.fillRect(bx, groundY-h, 26, h);
+        ctx.fillStyle = "rgba(255,210,63,0.12)";
+        ctx.fillRect(bx+8, groundY-h+10, 10, h-18);
+      }
+    }
+  }
+
+  // Restart
+  btnRestart.addEventListener("click", function(){
+    resetGame();
+  });
+})();
+</script>
+</body>
+</html>
