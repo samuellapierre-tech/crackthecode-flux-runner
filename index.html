@@ -2,14 +2,18 @@
 <html lang="fr">
 <head>
   <meta charset="utf-8">
-  <title>CrackTheCode — Flux Runner NEON</title>
+  <title>CrackTheCode — Akira Breach Ops</title>
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <style>
     :root{
-      --bg:#02030a;
+      --bg:#02040a;
+      --bg2:#050815;
       --accent:#b35cff;
-      --accent2:#ffd23f;
-      --neon:#39ff14;
+      --accent-soft:rgba(179,92,255,0.3);
+      --accent2:#00e0ff;
+      --accent3:#ffd23f;
+      --ok:#39ff14;
+      --danger:#ff3055;
       --text:#e6eef8;
       --muted:#9aa6b2;
       font-family:"Fira Code","Inconsolata",ui-monospace,monospace;
@@ -17,190 +21,308 @@
     *{box-sizing:border-box;margin:0;padding:0;}
     body{
       min-height:100vh;
-      background:radial-gradient(circle at top,#1a0b33,#02030a 40%,#000 100%);
+      background:radial-gradient(circle at top,#141129 0%,#02040a 45%,#000 100%);
       color:var(--text);
       display:flex;
       justify-content:center;
       align-items:flex-start;
-      padding:12px;
+      padding:16px;
     }
     .wrapper{
       width:100%;
       max-width:1280px;
+    }
+    h1{
+      font-size:22px;
+      color:var(--accent);
+      text-shadow:0 0 16px rgba(179,92,255,0.9);
+      letter-spacing:1px;
+      margin-bottom:2px;
+    }
+    .subtitle{
+      font-size:11px;
+      color:var(--muted);
+      margin-bottom:8px;
+    }
+    .subtitle span{
+      color:var(--accent3);
     }
     .topbar{
       display:flex;
       justify-content:space-between;
       gap:14px;
       align-items:flex-end;
-      margin-bottom:8px;
+      margin-bottom:10px;
       flex-wrap:wrap;
-    }
-    h1{
-      font-size:22px;
-      color:var(--accent);
-      letter-spacing:1px;
-      text-shadow:0 0 14px rgba(179,92,255,1);
-      margin-bottom:2px;
-    }
-    .subtitle{
-      font-size:11px;
-      color:var(--muted);
-    }
-    .subtitle span{
-      color:var(--accent2);
     }
     .controls-hint{
       font-size:10px;
       color:var(--muted);
       text-align:right;
+      max-width:260px;
       line-height:1.4;
-    }
-    .controls-hint b{
-      color:var(--accent2);
-      font-weight:600;
     }
     #gameContainer{
       position:relative;
       width:100%;
       aspect-ratio:16/9;
       max-height:720px;
-      margin:0 auto;
       border-radius:18px;
       overflow:hidden;
-      background:#010108;
+      background:
+        radial-gradient(circle at top,rgba(179,92,255,0.06),transparent),
+        radial-gradient(circle at bottom,rgba(0,224,255,0.04),transparent),
+        #02040a;
       box-shadow:0 22px 70px rgba(0,0,0,0.98);
-      border:1px solid rgba(179,92,255,0.4);
+      border:1px solid rgba(179,92,255,0.35);
+      display:grid;
+      grid-template-columns:2fr 1.4fr;
     }
-    canvas{
-      width:100%;
-      height:100%;
-      display:block;
-      image-rendering:pixelated;
-      background:transparent;
+    .column{
+      position:relative;
+      padding:10px;
     }
-    .hud{
-      position:absolute;
-      top:8px;
-      left:10px;
-      right:10px;
+    .col-left{
+      border-right:1px solid rgba(255,255,255,0.04);
+    }
+    .hud-top{
       display:flex;
       justify-content:space-between;
-      font-size:10px;
+      align-items:center;
+      font-size:9px;
       color:var(--muted);
-      pointer-events:none;
-      text-shadow:0 0 5px #000;
+      margin-bottom:6px;
     }
-    .hud .left span.label{color:var(--accent2);}
-    .health{
-      display:inline-block;
-      margin-left:4px;
+    .hud-top .label{color:var(--accent3);}
+    .det-bar-wrap{
+      flex:1;
+      margin:0 8px;
+      height:6px;
+      background:rgba(4,10,20,0.95);
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,0.04);
+      overflow:hidden;
+    }
+    .det-bar{
+      height:100%;
+      width:0%;
+      background:linear-gradient(90deg,var(--ok),var(--accent3),var(--danger));
+      box-shadow:0 0 12px rgba(255,48,85,0.7);
+      transition:width 0.2s ease-out;
+    }
+    .mini-label{
+      font-size:8px;
+      color:var(--muted);
+    }
+    .map{
+      position:relative;
+      width:100%;
+      height:calc(100% - 26px);
+      border-radius:12px;
+      background:radial-gradient(circle at top,rgba(0,224,255,0.05),transparent),
+                 linear-gradient(to bottom,rgba(4,10,20,0.96),#02040a);
+      box-shadow:inset 0 0 22px rgba(0,0,0,0.85);
+      overflow:hidden;
+    }
+    .grid-line{
+      position:absolute;
+      background:rgba(120,140,200,0.08);
+      pointer-events:none;
+    }
+    .grid-line.v{
+      width:1px;
+      top:0;bottom:0;
+    }
+    .grid-line.h{
+      height:1px;
+      left:0;right:0;
+    }
+    .node{
+      position:absolute;
+      width:72px;
+      padding:4px 4px 6px;
+      border-radius:10px;
+      background:rgba(5,10,25,0.96);
+      border:1px solid rgba(179,92,255,0.26);
+      box-shadow:0 6px 14px rgba(0,0,0,0.9);
+      font-size:8px;
+      color:var(--muted);
+      cursor:pointer;
+      display:flex;
+      flex-direction:column;
+      gap:1px;
+      transition:all 0.16s ease-out;
+    }
+    .node .name{
+      font-size:8px;
       color:var(--accent2);
+      font-weight:600;
+    }
+    .node .type{
+      font-size:7px;
+      opacity:0.8;
+    }
+    .node .status{
+      font-size:7px;
+      color:var(--accent3);
+    }
+    .node.selected{
+      border-color:var(--accent3);
+      box-shadow:0 0 14px rgba(255,210,63,0.9);
+      transform:translateY(-2px);
+    }
+    .node.compromised{
+      border-color:var(--ok);
+      box-shadow:0 0 12px rgba(57,255,20,0.7);
+    }
+    .node.detected{
+      border-color:var(--danger);
+      box-shadow:0 0 14px rgba(255,48,85,0.9);
+    }
+    .link{
+      position:absolute;
+      height:2px;
+      background:linear-gradient(90deg,rgba(179,92,255,0.0),rgba(179,92,255,0.6),rgba(0,224,255,0.0));
+      box-shadow:0 0 8px rgba(0,224,255,0.6);
+      transform-origin:left center;
+      opacity:0.7;
+      pointer-events:none;
+    }
+    .panel{
+      height:100%;
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+    }
+    .panel-block{
+      background:radial-gradient(circle at top left,rgba(179,92,255,0.12),transparent),
+                 rgba(3,6,14,0.98);
+      border-radius:10px;
+      padding:8px;
+      border:1px solid rgba(255,255,255,0.04);
+      box-shadow:0 8px 18px rgba(0,0,0,0.95);
+    }
+    .panel-title{
+      font-size:9px;
+      color:var(--accent2);
+      margin-bottom:4px;
+      text-transform:uppercase;
       letter-spacing:1px;
     }
-    .hud .right{
-      text-align:right;
-      max-width:55%;
-    }
-    .hud .right .lyra-label{
-      color:var(--accent);
-      font-weight:600;
-      margin-right:2px;
-    }
-    .msg{
-      position:absolute;
-      bottom:8px;
-      left:10px;
-      right:10px;
-      font-size:10px;
+    #log{
+      font-size:8px;
       color:var(--muted);
-      pointer-events:none;
-      text-shadow:0 0 5px #000;
+      max-height:110px;
+      overflow-y:auto;
+      line-height:1.5;
     }
-    .overlay-title{
+    #log .entry.ok{color:var(--ok);}
+    #log .entry.bad{color:var(--danger);}
+    #log .entry.sys{color:var(--accent2);}
+    #log .entry.lyra{color:var(--accent3);}
+    #selected-info{
+      font-size:8px;
+      color:var(--muted);
+      line-height:1.5;
+      min-height:46px;
+    }
+    .actions{
+      display:flex;
+      flex-wrap:wrap;
+      gap:4px;
+      margin-top:2px;
+    }
+    .btn{
+      flex:1 0 calc(50% - 4px);
+      padding:6px 4px;
+      border-radius:7px;
+      border:1px solid rgba(179,92,255,0.5);
+      background:rgba(6,10,22,0.98);
+      color:var(--accent2);
+      font-size:8px;
+      cursor:pointer;
+      text-align:center;
+      transition:all 0.12s ease-out;
+    }
+    .btn span{
+      font-size:7px;
+      color:var(--muted);
+      display:block;
+      margin-top:1px;
+    }
+    .btn:hover{
+      background:radial-gradient(circle at top,rgba(179,92,255,0.22),rgba(2,4,10,1));
+      box-shadow:0 4px 12px rgba(0,0,0,1);
+      transform:translateY(-1px);
+    }
+    .btn.disabled{
+      opacity:0.25;
+      cursor:default;
+      box-shadow:none;
+      transform:none;
+    }
+    .objective{
+      font-size:8px;
+      color:var(--muted);
+      line-height:1.5;
+    }
+    .objective b{
+      color:var(--accent3);
+    }
+    .end-overlay{
       position:absolute;
       inset:0;
-      display:flex;
+      background:radial-gradient(circle at center,rgba(0,0,0,0.15),rgba(0,0,0,0.96));
+      display:none;
       flex-direction:column;
       align-items:center;
       justify-content:center;
-      background:radial-gradient(circle at center,rgba(0,0,0,0.1),rgba(0,0,0,0.96));
-      backdrop-filter:blur(3px);
-      color:var(--text);
       text-align:center;
-      z-index:5;
-      pointer-events:auto;
+      padding:16px;
+      z-index:10;
     }
-    .overlay-title h2{
-      font-size:24px;
+    .end-overlay h2{
+      font-size:18px;
       margin-bottom:4px;
-      color:var(--accent2);
+      color:var(--accent3);
       text-shadow:0 0 14px rgba(255,210,63,1);
-      letter-spacing:2px;
     }
-    .overlay-title h3{
-      font-size:13px;
-      color:var(--accent);
-      margin-bottom:8px;
-    }
-    .overlay-title p{
-      font-size:10px;
+    .end-overlay p{
+      font-size:9px;
       color:var(--muted);
-      max-width:380px;
+      max-width:360px;
       margin:0 auto 10px;
+      line-height:1.5;
     }
-    .overlay-title button{
-      padding:8px 16px;
+    .end-overlay button{
+      padding:7px 16px;
       border-radius:999px;
       border:none;
-      cursor:pointer;
-      background:linear-gradient(90deg,var(--accent),var(--accent2));
-      color:#04050a;
-      font-size:11px;
+      background:linear-gradient(90deg,var(--accent),var(--accent3));
+      color:#02040a;
+      font-size:9px;
       font-weight:700;
+      cursor:pointer;
       text-transform:uppercase;
-      box-shadow:0 10px 28px rgba(0,0,0,1);
+      box-shadow:0 10px 26px rgba(0,0,0,1);
     }
-    .overlay-title button:hover{
+    .end-overlay button:hover{
       transform:translateY(-2px);
     }
-    .btn-center{
-      position:absolute;
-      top:50%;
-      left:50%;
-      transform:translate(-50%,-50%);
-      padding:7px 14px;
-      border-radius:12px;
-      background:radial-gradient(circle at top,var(--accent),var(--accent2));
-      color:#050509;
-      font-size:10px;
-      border:none;
-      cursor:pointer;
-      box-shadow:0 10px 32px rgba(0,0,0,0.98);
-      display:none;
-      z-index:6;
-      font-weight:700;
-      text-transform:uppercase;
-      letter-spacing:0.5px;
-    }
-    .btn-center:hover{
-      transform:translate(-50%,-53%);
-    }
-    /* Scanlines + glow overlay */
-    #scan-overlay{
+    .scanlines{
       position:absolute;
       inset:0;
-      pointer-events:none;
       background:repeating-linear-gradient(
         to bottom,
-        rgba(255,255,255,0.03),
-        rgba(255,255,255,0.03) 1px,
-        transparent 2px,
-        transparent 3px
+        rgba(255,255,255,0.02),
+        rgba(255,255,255,0.02) 1px,
+        transparent 3px,
+        transparent 4px
       );
       mix-blend-mode:soft-light;
-      opacity:0.14;
-      z-index:2;
+      opacity:0.16;
+      pointer-events:none;
+      z-index:3;
     }
   </style>
 </head>
@@ -208,54 +330,82 @@
 <div class="wrapper">
   <div class="topbar">
     <div>
-      <h1>Flux Runner — Akira City Breach // NEON EDITION</h1>
+      <h1>Akira Breach Ops — Simulation Réseau CrackTheCode</h1>
       <div class="subtitle">
-        <span>Sam</span> plonge dans le flux noir. <span>Lyra.exe</span> encode les trajectoires.
-        Le skyline d&apos;Akira brûle en néon. L&apos;Alliance verrouille le Core. Kali attend.
+        Incarne <span>Sam</span>, guidé par <span>Lyra.exe</span>. Analyse un vrai schéma réseau (pare-feu, proxy, DMZ, DC).
+        Choisis le bon chemin, limite la détection, récupère le fragment de <span>Kali</span>.
       </div>
     </div>
     <div class="controls-hint">
-      <b>Contrôles</b><br>
-      Q / D ou ← / → : déplacement<br>
-      Espace : saut / double-saut<br>
-      E : hack (près d&apos;un nœud)<br>
-      3 nœuds → Core doré = sortie
+      Jeu style centre d'opérations :<br>
+      — Clique un nœud sur la carte<br>
+      — SCAN / PROBE / EXPLOIT / COVER<br>
+      — Si détection atteint 100% → repéré<br>
+      — Chaîne correcte Edge → DMZ → App → DB
     </div>
   </div>
 
   <div id="gameContainer">
-    <canvas id="game" width="1280" height="720"></canvas>
-    <div id="scan-overlay"></div>
-
-    <div class="hud">
-      <div class="left">
-        <span class="label">Sam:</span> <span id="hud-status">STABLE</span>
-        <span class="label">HP:</span> <span id="hud-hp" class="health">◆◆◆</span>
-        <span class="label">Nœuds:</span> <span id="hud-nodes">0/3</span>
+    <div class="column col-left">
+      <div class="hud-top">
+        <div><span class="label">Détection :</span></div>
+        <div class="det-bar-wrap"><div id="detBar" class="det-bar"></div></div>
+        <div class="mini-label" id="detLabel">0% — discret</div>
       </div>
-      <div class="right">
-        <span class="lyra-label">Lyra.exe:</span>
-        <span id="hud-lyra">"Connexion au flux néon établie."</span>
+      <div class="map" id="map"></div>
+    </div>
+
+    <div class="column">
+      <div class="panel">
+        <div class="panel-block">
+          <div class="panel-title">Console — Flux Lyra.exe</div>
+          <div id="log"></div>
+        </div>
+        <div class="panel-block">
+          <div class="panel-title">Nœud sélectionné</div>
+          <div id="selected-info">Clique sur un nœud dans la carte pour afficher ses détails techniques.</div>
+          <div class="actions">
+            <button class="btn" id="btn-scan">SCAN<br><span>Analyse discrète (risque faible)</span></button>
+            <button class="btn" id="btn-probe">PROBE<br><span>Fingerprint ciblé (risque moyen)</span></button>
+            <button class="btn" id="btn-exploit">EXPLOIT<br><span>Accès ciblé (risque élevé)</span></button>
+            <button class="btn" id="btn-cover">COVER<br><span>Nettoyage & réduction du bruit</span></button>
+          </div>
+        </div>
+        <div class="panel-block">
+          <div class="panel-title">Objectifs de mission</div>
+          <div class="objective">
+            <ul>
+              <li>Ne pas dépasser <b>100%</b> de détection (sinon l'Alliance te repère).</li>
+              <li>Compromettre dans l'ordre logique :
+                <b>Passerelle Edge</b> → <b>Proxy DMZ</b> → <b>Serveur Applicatif</b> → <b>Base Kali DC</b>.
+              </li>
+              <li>Ne pas gaspiller des exploits sur IDS / Mail : c'est du bruit pur.</li>
+              <li>Simulation pédagogique : hacking éthique & compréhension réseau.</li>
+            </ul>
+          </div>
+        </div>
       </div>
     </div>
 
-    <div class="msg" id="hud-msg">
-      Mission: traverse le flux. Hacke les nœuds violets (E). Évite les lasers rouges et drones.
-      Une fois les 3 nœuds piratés, connecte-toi au Core doré pour retrouver un fragment de Kali.
-    </div>
+    <div class="scanlines"></div>
 
-    <div class="overlay-title" id="intro">
-      <h2>FLUX RUNNER // ENTRY NODE</h2>
-      <h3>District 7 — Skyline d&apos;Akira City</h3>
+    <div class="end-overlay" id="overlay-fail">
+      <h2>INTRUSION DÉTECTÉE</h2>
       <p>
-        Sam, tu es dans le flux brut. Chaque pixel est une balle. Chaque néon, un mensonge de l&apos;Alliance.
-        Lyra.exe synchronise le parcours. Hacke 3 nœuds, brise le verrou, approche le Core. Kali te voit.
+        Les capteurs de l'Alliance des Systèmes ont corrélé tes paquets. Session Sam coupée.
+        Réessaie avec moins de scans inutiles et une meilleure chaîne de pivots.
       </p>
-      <button id="btn-start">Jack In</button>
+      <button id="retry-fail">Relancer la simulation</button>
     </div>
 
-    <button class="btn-center" id="btn-restart">Rebooter la mission</button>
-    <button class="btn-center" id="btn-next">Mission réussie — Retour au Hub</button>
+    <div class="end-overlay" id="overlay-win">
+      <h2>ACCÈS KALI FRAGMENT // VALIDÉ</h2>
+      <p>
+        Tu as compromis Edge → Proxy → App → DC proprement, avec bruit maîtrisé.
+        Lyra.exe a extrait un fragment de Kali. Utilise ce succès pour renvoyer vers un chapitre du livre ou un autre jeu CrackTheCode.
+      </p>
+      <button id="retry-win">Rejouer / Optimiser ton run</button>
+    </div>
   </div>
 </div>
 
@@ -263,549 +413,279 @@
 (function(){
   "use strict";
 
-  const canvas = document.getElementById("game");
-  const ctx = canvas.getContext("2d");
+  const nodesData = [
+    { id:"edge", name:"Passerelle Edge", type:"Firewall d'entrée ISP", role:"Point de passage initial. Pivot logique #1.", x:9,  y:52 },
+    { id:"proxy",name:"Proxy DMZ",       type:"Reverse Proxy / WAF",   role:"Protège les applis. Pivot #2 si Edge est propre.", x:28, y:40 },
+    { id:"app",  name:"Serveur Applicatif",type:"App CrackTheCode",   role:"Logique métier. Pivot #3 vers la base Kali.", x:52, y:30 },
+    { id:"db",   name:"Base Kali DC",    type:"Data Center",           role:"Contient les fragments Kali. Cible finale.", x:78, y:38 },
+    { id:"ids",  name:"IDS / SIEM",      type:"Surveillance",          role:"Voit les scans bourrins & exploits ratés.", x:40, y:68 },
+    { id:"mail", name:"Serveur Mail",    type:"Service annexe",        role:"Mauvais pivot = alerte.", x:64, y:60 }
+  ];
 
-  const hudStatus = document.getElementById("hud-status");
-  const hudHP     = document.getElementById("hud-hp");
-  const hudNodes  = document.getElementById("hud-nodes");
-  const hudLyra   = document.getElementById("hud-lyra");
-  const hudMsg    = document.getElementById("hud-msg");
-  const intro     = document.getElementById("intro");
-  const btnStart  = document.getElementById("btn-start");
-  const btnRestart= document.getElementById("btn-restart");
-  const btnNext   = document.getElementById("btn-next");
+  const linksData = [
+    ["edge","proxy"],
+    ["proxy","app"],
+    ["app","db"],
+    ["proxy","ids"],
+    ["app","mail"]
+  ];
 
-  const W = canvas.width;
-  const H = canvas.height;
+  const stageOrder = ["edge","proxy","app","db"];
 
-  // Monde
-  const levelLength = 4200;
-  const groundY = H - 120;
-
-  // Joueur
-  const player = {
-    x: 120,
-    y: groundY - 56,
-    w: 30,
-    h: 56,
-    vx: 0,
-    vy: 0,
-    speed: 4,
-    jumpForce: 8.2,
-    onGround: false,
-    canDouble: true,
-    hp: 3,
-    invul: 0,
-    alive: true,
-    reachedCore: false
+  const state = {
+    detection:0,
+    compromised:[],
+    selected:null,
+    locked:false
   };
 
-  // Nœuds
-  const nodes = [
-    { x: 900,  y: groundY - 90, w:26, h:60, hacked:false, progress:0 },
-    { x: 1900, y: groundY - 90, w:26, h:60, hacked:false, progress:0 },
-    { x: 2800, y: groundY - 90, w:26, h:60, hacked:false, progress:0 }
-  ];
+  const mapEl = document.getElementById("map");
+  const logEl = document.getElementById("log");
+  const selInfoEl = document.getElementById("selected-info");
+  const detBar = document.getElementById("detBar");
+  const detLabel = document.getElementById("detLabel");
+  const hudNodes = document.getElementById("hud-nodes");
+  const hudStatus = document.getElementById("hud-status");
+  const overlayFail = document.getElementById("overlay-fail");
+  const overlayWin = document.getElementById("overlay-win");
+  const retryFail = document.getElementById("retry-fail");
+  const retryWin = document.getElementById("retry-win");
+  const btnScan = document.getElementById("btn-scan");
+  const btnProbe = document.getElementById("btn-probe");
+  const btnExploit = document.getElementById("btn-exploit");
+  const btnCover = document.getElementById("btn-cover");
 
-  // Core
-  const core = { x: 3600, y: groundY - 160, w:70, h:160, online:false };
+  const nodeElements = {};
 
-  // Lasers dynamiques
-  const lasers = [
-    { x: 1250, y: groundY - 24, w:140, h:6, phase:0 },
-    { x: 2150, y: groundY - 40, w:160, h:6, phase:0.35 },
-    { x: 3100, y: groundY - 30, w:130, h:6, phase:0.7 }
-  ];
-
-  // Drones
-  const drones = [
-    { x: 1450, y: groundY - 200, w:30, h:18, dir:1,  range:120, baseX:1450 },
-    { x: 2450, y: groundY - 190, w:30, h:18, dir:-1, range:150, baseX:2450 }
-  ];
-
-  // Plateformes néon (visu et gameplay)
-  const platforms = [
-    { x: 400,  w:260 },
-    { x: 1100, w:220 },
-    { x: 1700, w:200 },
-    { x: 2300, w:260 },
-    { x: 3000, w:220 },
-    { x: 3400, w:260 }
-  ];
-
-  // Etoiles & skyline
-  const stars = [];
-  for(let i=0;i<120;i++){
-    stars.push({
-      x: Math.random()*levelLength,
-      y: Math.random()*(groundY-180),
-      s: 0.5 + Math.random()*1.5,
-      a: 0.15 + Math.random()*0.5
-    });
-  }
-
-  const keys = {};
-  window.addEventListener("keydown", e => {
-    keys[e.key.toLowerCase()] = true;
-  });
-  window.addEventListener("keyup", e => {
-    keys[e.key.toLowerCase()] = false;
-  });
-
-  function rectOverlap(a,b){
-    return !(
-      a.x + a.w <= b.x ||
-      a.x >= b.x + b.w ||
-      a.y + a.h <= b.y ||
-      a.y >= b.y + b.h
-    );
-  }
-
-  function updateHP(){
-    const icons = ["","◆","◆◆","◆◆◆"];
-    hudHP.textContent = icons[player.hp] || "";
-  }
-
-  function setLyra(msg){
-    hudLyra.textContent = "\"" + msg + "\"";
-  }
-
-  function resetGame(){
-    player.x = 120;
-    player.y = groundY - 56;
-    player.vx = 0;
-    player.vy = 0;
-    player.onGround = false;
-    player.canDouble = true;
-    player.hp = 3;
-    player.invul = 0;
-    player.alive = true;
-    player.reachedCore = false;
-    nodes.forEach(n=>{ n.hacked=false; n.progress=0; });
-    core.online = false;
-    hudStatus.textContent = "STABLE";
-    updateHP();
-    hudNodes.textContent = "0/3";
-    setLyra("Connexion au flux néon établie.");
-    hudMsg.innerHTML =
-      "Traverse le flux. Maintiens <b>E</b> près d'un nœud violet pour hacker. " +
-      "Les lasers se synchronisent; lis leurs patterns. Les drones ne pardonnent pas.";
-    btnRestart.style.display = "none";
-    btnNext.style.display = "none";
-  }
-
-  resetGame();
-
-  let running = false;
-
-  btnStart.addEventListener("click", function(){
-    intro.style.display = "none";
-    running = true;
-  });
-
-  btnRestart.addEventListener("click", function(){
-    resetGame();
-    running = true;
-  });
-
-  btnNext.addEventListener("click", function(){
-    // Pour l'instant, reboot. Plus tard: lien vers hub.
-    resetGame();
-    intro.style.display = "flex";
-    running = false;
-  });
-
-  let last = performance.now();
-  function loop(t){
-    const dt = Math.min((t - last)/16.67, 3);
-    last = t;
-    if(running) update(dt);
-    draw();
-    requestAnimationFrame(loop);
-  }
-  requestAnimationFrame(loop);
-
-  function update(dt){
-    if(!player.alive || player.reachedCore) return;
-
-    // Mouvement horizontale
-    let move = 0;
-    if(keys["arrowleft"] || keys["q"]) move -= 1;
-    if(keys["arrowright"] || keys["d"]) move += 1;
-    player.vx = move * player.speed;
-
-    // Saut + double-saut
-    if((keys[" "] || keys["space"]) && player.onGround){
-      player.vy = -player.jumpForce;
-      player.onGround = false;
-      player.canDouble = true;
-      keys[" "] = keys["space"] = false;
-    } else if((keys[" "] || keys["space"]) && player.canDouble && !player.onGround){
-      player.vy = -player.jumpForce * 0.92;
-      player.canDouble = false;
-      keys[" "] = keys["space"] = false;
+  function buildGrid(){
+    for(let x=0;x<=100;x+=10){
+      const v=document.createElement("div");
+      v.className="grid-line v";
+      v.style.left=x+"%";
+      v.style.opacity=(x%20===0)?"0.16":"0.06";
+      mapEl.appendChild(v);
     }
-
-    // Gravité
-    player.vy += 0.5 * dt;
-    if(player.vy > 13) player.vy = 13;
-
-    // Appliquer mouvement
-    player.x += player.vx * dt;
-    player.y += player.vy * dt;
-
-    // Sol
-    if(player.y + player.h >= groundY){
-      player.y = groundY - player.h;
-      player.vy = 0;
-      player.onGround = true;
-    }
-
-    // Plateformes (un peu d'aide visuelle + collisions simples)
-    platforms.forEach(p=>{
-      // collision par le dessus si joueur tombe
-      if(player.vy >= 0){
-        if(player.x + player.w > p.x && player.x < p.x + p.w){
-          const py = groundY - 40; // hauteur plate-forme
-          if(player.y + player.h >= py && player.y + player.h <= py + 14){
-            player.y = py - player.h;
-            player.vy = 0;
-            player.onGround = true;
-          }
-        }
-      }
-    });
-
-    // Limites monde
-    if(player.x < 0) player.x = 0;
-    if(player.x + player.w > levelLength) player.x = levelLength - player.w;
-    if(player.y > H){ // tombe trop bas
-      hitPlayer("Chute dans le néant. Recalibrage.");
-    }
-
-    // Invulnérabilité
-    if(player.invul > 0) player.invul -= 0.08 * dt;
-
-    // Hack
-    const hacking = keys["e"];
-    let hackingSomething = false;
-    nodes.forEach(n=>{
-      const dist = Math.abs((player.x + player.w/2) - (n.x + n.w/2));
-      if(!n.hacked && dist < 50 && Math.abs(player.y + player.h - (n.y + n.h)) < 40){
-        if(hacking){
-          hackingSomething = true;
-          n.progress += 0.03 * dt;
-          if(n.progress >= 1){
-            n.hacked = true;
-            n.progress = 1;
-            setLyra("Nœud sécurisé. Fragment ajouté.");
-            const count = nodes.filter(x=>x.hacked).length;
-            hudMsg.innerHTML = "Nœud piraté ("+count+"/3). Avance vers le suivant.";
-          }
-        }
-      }
-      if(!hacking && !n.hacked && n.progress > 0){
-        n.progress = Math.max(0, n.progress - 0.01*dt);
-      }
-    });
-
-    if(hackingSomething){
-      hudStatus.textContent = "HACKING...";
-    } else if(!player.reachedCore){
-      hudStatus.textContent = "STABLE";
-    }
-
-    // Drones mouvement
-    drones.forEach(d=>{
-      d.x += d.dir * 1.6 * dt;
-      if(d.x > d.baseX + d.range || d.x < d.baseX - d.range){
-        d.dir *= -1;
-      }
-    });
-
-    // Lasers oscillation
-    lasers.forEach(l=>{
-      l.phase += 0.03 * dt;
-      if(l.phase > 1) l.phase -= 1;
-    });
-
-    const pb = { x:player.x+4, y:player.y+6, w:player.w-8, h:player.h-10 };
-
-    // Lasers collision si actifs
-    lasers.forEach(l=>{
-      const active = l.phase > 0.35; // un peu de télégraphe avant
-      if(active){
-        const lb = { x:l.x, y:l.y-4, w:l.w, h:l.h+8 };
-        if(rectOverlap(pb, lb)){
-          hitPlayer("Laser rouge. Respire, analyse le rythme.");
-        }
-      }
-    });
-
-    // Drones collision
-    drones.forEach(d=>{
-      const db = { x:d.x, y:d.y, w:d.w, h:d.h };
-      if(rectOverlap(pb, db)){
-        hitPlayer("Drone Alliance. Change de trajectoire.");
-      }
-    });
-
-    // Core: en ligne une fois tous nœuds hackés
-    const hackedCount = nodes.filter(n=>n.hacked).length;
-    hudNodes.textContent = hackedCount + "/3";
-    if(hackedCount === nodes.length && !core.online){
-      core.online = true;
-      setLyra("Core exposé. Fonce, je brouille leurs capteurs.");
-      hudMsg.innerHTML = "Tous les nœuds sont piratés. Rejoins le Core doré au bout du flux.";
-    }
-
-    // Victoire
-    if(core.online && rectOverlap(pb, core) && !player.reachedCore){
-      player.reachedCore = true;
-      setLyra("Lien avec Kali établi. Tu viens de transpercer Akira.");
-      hudStatus.textContent = "LINKED";
-      hudMsg.innerHTML =
-        "<b>Mission accomplie.</b> Fragment de Kali récupéré. Retourne au hub pour la suite.";
-      btnNext.textContent = "Retour au Hub CrackTheCode";
-      btnNext.style.display = "block";
+    for(let y=0;y<=100;y+=12){
+      const h=document.createElement("div");
+      h.className="grid-line h";
+      h.style.top=y+"%";
+      h.style.opacity=(y%24===0)?"0.18":"0.06";
+      mapEl.appendChild(h);
     }
   }
 
-  function hitPlayer(msg){
-    if(player.invul > 0 || !player.alive || player.reachedCore) return;
-    player.hp -= 1;
-    updateHP();
-    player.invul = 1.2;
-    setLyra(msg);
-    hudStatus.textContent = "IMPACT";
-    // knockback léger
-    player.vy = -4;
-    player.vx = (player.vx >= 0 ? -2.5 : 2.5);
+  function buildNodes(){
+    nodesData.forEach(n=>{
+      const el=document.createElement("div");
+      el.className="node";
+      el.style.left=n.x+"%";
+      el.style.top=n.y+"%";
+      el.dataset.id=n.id;
+      el.innerHTML =
+        '<div class="name">'+n.name+'</div>' +
+        '<div class="type">'+n.type+'</div>' +
+        '<div class="status">Status: intact</div>';
+      el.addEventListener("click",()=>selectNode(n.id));
+      mapEl.appendChild(el);
+      nodeElements[n.id]=el;
+    });
+  }
 
-    if(player.hp <= 0){
-      player.alive = false;
-      hudStatus.textContent = "OFFLINE";
-      setLyra("Signal rompu. On recalcule une trajectoire.");
-      hudMsg.innerHTML =
-        "Tu as été saturé par le flux. Reboote la mission et lis le rythme du niveau: c'est un langage.";
-      btnRestart.style.display = "block";
+  function buildLinks(){
+    linksData.forEach(([a,b])=>{
+      const na=nodeElements[a];
+      const nb=nodeElements[b];
+      if(!na||!nb) return;
+      const ax=na.offsetLeft+na.offsetWidth/2;
+      const ay=na.offsetTop+na.offsetHeight/2;
+      const bx=nb.offsetLeft+nb.offsetWidth/2;
+      const by=nb.offsetTop+nb.offsetHeight/2;
+      const dx=bx-ax;
+      const dy=by-ay;
+      const dist=Math.sqrt(dx*dx+dy*dy);
+      const angle=Math.atan2(dy,dx)*180/Math.PI;
+      const link=document.createElement("div");
+      link.className="link";
+      link.style.width=dist+"px";
+      link.style.left=ax+"px";
+      link.style.top=ay+"px";
+      link.style.transform="rotate("+angle+"deg)";
+      mapEl.appendChild(link);
+    });
+  }
+
+  function log(type,msg){
+    const div=document.createElement("div");
+    div.classList.add("entry");
+    if(type==="ok") div.classList.add("ok");
+    else if(type==="bad") div.classList.add("bad");
+    else if(type==="sys") div.classList.add("sys");
+    else if(type==="lyra") div.classList.add("lyra");
+    const prefix={ok:"[OK] ",bad:"[ALERTE] ",sys:"[SYS] ",lyra:"[LYRA] "}[type] || "";
+    div.textContent=prefix+msg;
+    logEl.appendChild(div);
+    logEl.scrollTop=logEl.scrollHeight;
+  }
+
+  function setDetection(delta){
+    state.detection=Math.max(0,Math.min(100,state.detection+delta));
+    detBar.style.width=state.detection+"%";
+    let label=state.detection+"% — discret";
+    if(state.detection>20) label=state.detection+"% — surveillé";
+    if(state.detection>50) label=state.detection+"% — chaud";
+    if(state.detection>80) label=state.detection+"% — critique";
+    detLabel.textContent=label;
+    if(state.detection>=100) fail();
+  }
+
+  function updateNodesHUD(){
+    const count=state.compromised.length;
+    if(hudNodes) hudNodes.textContent=count+"/4";
+  }
+
+  function selectNode(id){
+    if(state.locked) return;
+    state.selected=id;
+    Object.values(nodeElements).forEach(el=>el.classList.remove("selected"));
+    const el=nodeElements[id];
+    if(el) el.classList.add("selected");
+    const node=nodesData.find(n=>n.id===id);
+    if(node){
+      selInfoEl.innerHTML =
+        "<b>"+node.name+"</b><br>"+node.type+
+        "<br>"+node.role+
+        "<br><span style=\"color:"+getComputedStyle(document.body).getPropertyValue('--accent-soft')+"\">Actions disponibles à droite.</span>";
     }
   }
 
-  function draw(){
-    const camX = Math.max(0, Math.min(player.x - W/2, levelLength - W));
-    ctx.clearRect(0,0,W,H);
+  function getStage(){ return state.compromised.length; }
+  function isCorrectNext(id){ return stageOrder[getStage()]===id; }
+  function isCompromised(id){ return state.compromised.includes(id); }
 
-    drawSkyline(camX);
-    drawGrid(camX);
-
-    // Plateformes néon
-    platforms.forEach(p=>{
-      const sx = p.x - camX;
-      if(sx + p.w < 0 || sx > W) return;
-      const y = groundY - 40;
-      const grad = ctx.createLinearGradient(sx, y, sx, y+8);
-      grad.addColorStop(0,"rgba(179,92,255,0.9)");
-      grad.addColorStop(1,"rgba(179,92,255,0.0)");
-      ctx.fillStyle = grad;
-      ctx.fillRect(sx, y, p.w, 8);
-    });
-
-    // Lasers
-    lasers.forEach(l=>{
-      const sx = l.x - camX;
-      if(sx + l.w < 0 || sx > W) return;
-      const active = l.phase > 0.35;
-      if(active){
-        const g = ctx.createLinearGradient(sx, l.y, sx+l.w, l.y);
-        g.addColorStop(0,"rgba(255,80,120,0)");
-        g.addColorStop(0.5,"rgba(255,80,120,1)");
-        g.addColorStop(1,"rgba(255,80,120,0)");
-        ctx.fillStyle = g;
-        ctx.fillRect(sx, l.y, l.w, l.h);
-        ctx.shadowColor = "#ff3055";
-        ctx.shadowBlur = 10;
-        ctx.fillRect(sx, l.y-1, l.w, 2);
-        ctx.shadowBlur = 0;
-      } else {
-        // état "préparation"
-        ctx.fillStyle = "rgba(255,80,120,0.22)";
-        ctx.fillRect(sx, l.y+1, l.w, 2);
-      }
-    });
-
-    // Drones
-    drones.forEach(d=>{
-      const sx = d.x - camX;
-      if(sx + d.w < 0 || sx > W) return;
-      ctx.fillStyle = "#39ff14";
-      ctx.fillRect(sx, d.y, d.w, d.h);
-      ctx.fillStyle = "#000";
-      ctx.fillRect(sx+5, d.y+4, 6, 4);
-      ctx.fillRect(sx+d.w-11, d.y+4, 6, 4);
-      ctx.strokeStyle = "rgba(57,255,20,0.35)";
-      ctx.beginPath();
-      ctx.arc(sx+d.w/2, d.y+d.h/2, 14, 0, Math.PI*2);
-      ctx.stroke();
-    });
-
-    // Nœuds
-    nodes.forEach(n=>{
-      const sx = n.x - camX;
-      if(sx + n.w < 0 || sx > W) return;
-      if(n.hacked){
-        const g = ctx.createLinearGradient(sx, n.y, sx, n.y+n.h);
-        g.addColorStop(0,"#39ff14");
-        g.addColorStop(1,"#0c3010");
-        ctx.fillStyle = g;
-        ctx.fillRect(sx, n.y, n.w, n.h);
-        ctx.fillStyle = "#0b1f0b";
-        ctx.fillRect(sx+4, n.y+10, n.w-8, 4);
-      } else {
-        const g2 = ctx.createLinearGradient(sx, n.y, sx, n.y+n.h);
-        g2.addColorStop(0,"#b35cff");
-        g2.addColorStop(1,"#3b1677");
-        ctx.fillStyle = g2;
-        ctx.fillRect(sx, n.y, n.w, n.h);
-        ctx.fillStyle = "#ffd23f";
-        ctx.fillRect(sx+5, n.y+6, n.w-10, 3);
-      }
-      // barre de hack
-      if(!n.hacked && n.progress > 0){
-        const bw = 46;
-        const bh = 4;
-        const bx = sx + n.w/2 - bw/2;
-        const by = n.y - 8;
-        ctx.fillStyle = "rgba(0,0,0,0.8)";
-        ctx.fillRect(bx, by, bw, bh);
-        ctx.fillStyle = "#39ff14";
-        ctx.fillRect(bx, by, bw * Math.min(1,n.progress), bh);
-      }
-    });
-
-    // Core
-    const cx = core.x - camX;
-    if(cx + core.w > 0 && cx < W){
-      const g = ctx.createLinearGradient(cx, core.y, cx, core.y+core.h);
-      g.addColorStop(0,"#b35cff");
-      g.addColorStop(0.5,"#ffd23f");
-      g.addColorStop(1,"#39ff14");
-      ctx.fillStyle = g;
-      ctx.fillRect(cx, core.y, core.w, core.h);
-      ctx.fillStyle = "rgba(0,0,0,0.5)";
-      ctx.fillRect(cx+10, core.y+16, core.w-20, core.h-32);
-      if(core.online){
-        ctx.strokeStyle = "#39ff14";
-        ctx.lineWidth = 2;
-        ctx.strokeRect(cx+8, core.y+12, core.w-16, core.h-24);
-      }
-    }
-
-    // Sol
-    ctx.strokeStyle = "rgba(179,92,255,0.45)";
-    ctx.beginPath();
-    ctx.moveTo(0, groundY+0.5);
-    ctx.lineTo(W, groundY+0.5);
-    ctx.stroke();
-
-    // Sam (sprite stylisé avec glow)
-    const px = player.x - camX;
-    let alpha = 1;
-    if(player.invul > 0){
-      alpha = 0.4 + 0.6*Math.sin(performance.now()/80);
-    }
-    ctx.save();
-    ctx.globalAlpha = alpha;
-    // aura
-    ctx.fillStyle = "rgba(255,210,63,0.15)";
-    ctx.beginPath();
-    ctx.ellipse(px+player.w/2, player.y+player.h/2, 22, 34, 0, 0, Math.PI*2);
-    ctx.fill();
-    // corps
-    ctx.fillStyle = "#ffd23f";
-    ctx.fillRect(px, player.y, player.w, player.h);
-    // capuche & masque
-    ctx.fillStyle = "#05030a";
-    ctx.fillRect(px+5, player.y+3, player.w-10, 14);
-    ctx.fillStyle = "#b35cff";
-    ctx.fillRect(px+7, player.y+9, player.w-14, 3);
-    ctx.restore();
-
-    // petit trail si en mouvement
-    if(Math.abs(player.vx) > 0.1){
-      ctx.strokeStyle = "rgba(179,92,255,0.35)";
-      ctx.beginPath();
-      ctx.moveTo(px+player.w/2, player.y+player.h);
-      ctx.lineTo(px+player.w/2 - player.vx*3, player.y+player.h+10);
-      ctx.stroke();
+  function scan(){
+    if(!state.selected || state.locked) return;
+    const node=nodesData.find(n=>n.id===state.selected);
+    if(!node) return;
+    if(isCorrectNext(node.id)){
+      log("ok","Scan discret sur "+node.name+" : surface d'attaque intéressante.");
+      setDetection(3);
+    } else {
+      log("bad","Scan bruyant sur "+node.name+" : traces envoyées au SIEM.");
+      nodeElements[node.id].classList.add("detected");
+      setDetection(8);
     }
   }
 
-  function drawSkyline(camX){
-    // ciel gradient
-    let g = ctx.createLinearGradient(0,0,0,H);
-    g.addColorStop(0,"#05051a");
-    g.addColorStop(0.4,"#08081f");
-    g.addColorStop(1,"#02030a");
-    ctx.fillStyle = g;
-    ctx.fillRect(0,0,W,H);
+  function probe(){
+    if(!state.selected || state.locked) return;
+    const node=nodesData.find(n=>n.id===state.selected);
+    if(!node) return;
+    if(isCorrectNext(node.id)){
+      log("ok","Probe ciblé sur "+node.name+" : vulnérabilité exploitable trouvée.");
+      setDetection(6);
+    } else {
+      log("bad","Fingerprint agressif sur "+node.name+" : corrélé par l'IDS.");
+      nodeElements[node.id].classList.add("detected");
+      setDetection(14);
+    }
+  }
 
-    // lune / source de lumière
-    ctx.fillStyle = "rgba(255,210,120,0.08)";
-    ctx.beginPath();
-    ctx.arc(W*0.16, H*0.16, 90, 0, Math.PI*2);
-    ctx.fill();
+  function exploit(){
+    if(!state.selected || state.locked) return;
+    const node=nodesData.find(n=>n.id===state.selected);
+    if(!node) return;
+    if(isCompromised(node.id)){
+      log("sys",node.name+" est déjà sous contrôle.");
+      setDetection(2);
+      return;
+    }
+    const must=stageOrder[getStage()];
+    if(node.id===must){
+      state.compromised.push(node.id);
+      const el=nodeElements[node.id];
+      el.classList.add("compromised");
+      const st=el.querySelector(".status");
+      if(st) st.textContent="Status: compromis contrôlé";
+      log("ok","Accès établi sur "+node.name+" (pivot "+state.compromised.length+"/4).");
+      setDetection(10);
+      updateNodesHUD();
+      if(node.id==="edge") log("lyra","Parfait. Maintenant le Proxy DMZ, pas les jouets.");
+      else if(node.id==="proxy") log("lyra","Carré. De là, vise l'app, pas l'IDS.");
+      else if(node.id==="app") log("lyra","Encore un saut propre et Kali est à portée.");
+      if(node.id==="db") win();
+      else if(hudStatus) hudStatus.textContent="INSIDE: "+node.id.toUpperCase();
+    } else {
+      log("bad","Exploit raté sur "+node.name+" : alerte critique.");
+      nodeElements[node.id].classList.add("detected");
+      setDetection(22);
+    }
+  }
 
-    // étoiles
-    stars.forEach(s=>{
-      const sx = (s.x - camX*0.15);
-      const x = ((sx % levelLength) + levelLength) % levelLength;
-      if(x >= -4 && x <= W+4){
-        ctx.globalAlpha = s.a;
-        ctx.fillStyle = "#b35cff";
-        ctx.fillRect(x, s.y, s.s, s.s);
-      }
+  function cover(){
+    if(state.locked) return;
+    if(state.detection<=0){
+      log("sys","Aucune trace à effacer.");
+      return;
+    }
+    const gain=10;
+    state.detection=Math.max(0,state.detection-gain);
+    detBar.style.width=state.detection+"%";
+    detLabel.textContent=state.detection+"% — discrétion améliorée";
+    log("ok","Nettoyage de logs & rotation d'empreintes : -"+gain+"% détection.");
+  }
+
+  function fail(){
+    if(state.locked) return;
+    state.locked=true;
+    if(hudStatus) hudStatus.textContent="TRACÉ";
+    log("bad","L'Alliance des Systèmes a triangulé Sam. Session terminée.");
+    overlayFail.style.display="flex";
+  }
+
+  function win(){
+    if(state.locked) return;
+    state.locked=true;
+    if(hudStatus) hudStatus.textContent="KALI//LINK";
+    log("ok","Chaîne complète compromise proprement. Fragment de Kali exfiltré.");
+    log("lyra","On a ce qu'il nous faut. Connecte ce succès au reste de CrackTheCode.");
+    overlayWin.style.display="flex";
+  }
+
+  function reset(){
+    state.detection=0;
+    state.compromised=[];
+    state.selected=null;
+    state.locked=false;
+    detBar.style.width="0%";
+    detLabel.textContent="0% — discret";
+    if(hudStatus) hudStatus.textContent="STABLE";
+    if(hudNodes) hudNodes.textContent="0/4";
+    logEl.innerHTML="";
+    selInfoEl.textContent="Clique sur un nœud dans la carte pour afficher ses détails techniques.";
+    Object.values(nodeElements).forEach(el=>{
+      el.classList.remove("selected","compromised","detected");
+      const st=el.querySelector(".status");
+      if(st) st.textContent="Status: intact";
     });
-    ctx.globalAlpha = 1;
-
-    // skyline néon (parallaxe)
-    const base1 = - (camX * 0.25);
-    for(let i=0;i<26;i++){
-      const bx = (base1 + i*220) % (W+260) - 80;
-      const h = 80 + (i%5)*24;
-      if(bx > -100 && bx < W+60){
-        ctx.fillStyle = "rgba(10,6,30,0.98)";
-        ctx.fillRect(bx, groundY-h-40, 44, h);
-        ctx.fillStyle = "rgba(179,92,255,0.25)";
-        ctx.fillRect(bx+10, groundY-h-32, 4, h-16);
-        ctx.fillStyle = "rgba(255,210,63,0.18)";
-        ctx.fillRect(bx+24, groundY-h-28, 3, h-24);
-      }
-    }
+    overlayFail.style.display="none";
+    overlayWin.style.display="none";
+    log("sys","Simulation Akira Breach Ops réinitialisée.");
+    log("lyra","On recommence. Moins de bruit, plus de cerveau.");
   }
 
-  function drawGrid(camX){
-    // grille du flux
-    ctx.lineWidth = 1;
-    // lignes verticales
-    ctx.strokeStyle = "rgba(179,92,255,0.14)";
-    for(let x = - (camX % 48); x < W; x += 48){
-      ctx.beginPath();
-      ctx.moveTo(x, groundY);
-      ctx.lineTo(x+18, H);
-      ctx.stroke();
-    }
-    // lignes horizontales
-    ctx.strokeStyle = "rgba(57,255,20,0.06)";
-    for(let y = groundY; y < H; y += 20){
-      ctx.beginPath();
-      ctx.moveTo(0, y);
-      ctx.lineTo(W, y);
-      ctx.stroke();
-    }
-  }
+  btnScan.addEventListener("click",scan);
+  btnProbe.addEventListener("click",probe);
+  btnExploit.addEventListener("click",exploit);
+  btnCover.addEventListener("click",cover);
+  retryFail.addEventListener("click",reset);
+  retryWin.addEventListener("click",reset);
 
+  buildGrid();
+  buildNodes();
+  setTimeout(buildLinks,40);
+
+  log("sys","Chargement topologie Akira City / CrackTheCode...");
+  log("lyra","Clique sur Edge. Si tu commences par l'IDS, je coupe le câble moi-même.");
 })();
 </script>
 </body>
