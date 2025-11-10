@@ -1,692 +1,677 @@
 <!doctype html>
 <html lang="fr">
 <head>
-  <meta charset="utf-8">
-  <title>CrackTheCode — Akira Breach Ops</title>
-  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Akira Breach Ops — CrackTheCode (Realistic Edition)</title>
+
+  <!-- Google fonts (ok sur GitHub Pages) -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Fira+Code:wght@400;700&display=swap" rel="stylesheet">
+
   <style>
     :root{
-      --bg:#02040a;
-      --bg2:#050815;
+      --bg:#050612;
+      --panel:#071024;
       --accent:#b35cff;
-      --accent-soft:rgba(179,92,255,0.3);
       --accent2:#00e0ff;
-      --accent3:#ffd23f;
+      --gold:#ffd23f;
       --ok:#39ff14;
       --danger:#ff3055;
-      --text:#e6eef8;
       --muted:#9aa6b2;
-      font-family:"Fira Code","Inconsolata",ui-monospace,monospace;
+      --glass:rgba(255,255,255,0.035);
+      --glass-2:rgba(255,255,255,0.02);
+      --glass-border: rgba(255,255,255,0.06);
+      font-family: "Inter", system-ui, -apple-system, "Fira Code", ui-monospace, monospace;
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
     }
-    *{box-sizing:border-box;margin:0;padding:0;}
+    *{box-sizing:border-box}
+    html,body{height:100%}
     body{
-      min-height:100vh;
-      background:radial-gradient(circle at top,#141129 0%,#02040a 45%,#000 100%);
-      color:var(--text);
+      margin:0;
+      padding:18px;
+      background:
+        radial-gradient(1200px 400px at 10% 10%, rgba(179,92,255,0.06), transparent 6%),
+        radial-gradient(1000px 300px at 90% 80%, rgba(0,224,255,0.03), transparent 6%),
+        linear-gradient(180deg,#051028 0%, #02030a 100%);
+      color:#e8eef8;
       display:flex;
       justify-content:center;
       align-items:flex-start;
-      padding:16px;
+      min-height:calc(100vh - 36px);
     }
-    .wrapper{
+
+    .shell{
       width:100%;
       max-width:1280px;
+      border-radius:16px;
+      overflow:hidden;
+      background: linear-gradient(180deg, rgba(6,10,22,0.85), rgba(2,4,8,0.95));
+      box-shadow: 0 24px 80px rgba(2,2,6,0.9), inset 0 1px 0 rgba(255,255,255,0.02);
+      border:1px solid var(--glass-border);
+      display:grid;
+      grid-template-columns: 1.55fr 0.95fr;
+      gap:14px;
     }
-    h1{
-      font-size:22px;
-      color:var(--accent);
-      text-shadow:0 0 16px rgba(179,92,255,0.9);
-      letter-spacing:1px;
-      margin-bottom:2px;
-    }
-    .subtitle{
-      font-size:11px;
-      color:var(--muted);
-      margin-bottom:8px;
-    }
-    .subtitle span{
-      color:var(--accent3);
+
+    /* Left: Map */
+    .map-col{
+      padding:18px;
+      position:relative;
     }
     .topbar{
       display:flex;
+      align-items:center;
       justify-content:space-between;
-      gap:14px;
-      align-items:flex-end;
-      margin-bottom:10px;
-      flex-wrap:wrap;
+      gap:12px;
+      margin-bottom:12px;
     }
-    .controls-hint{
-      font-size:10px;
-      color:var(--muted);
-      text-align:right;
-      max-width:260px;
-      line-height:1.4;
+    .title{
+      display:flex;
+      gap:12px;
+      align-items:baseline;
     }
-    #gameContainer{
-      position:relative;
+    .logo{
+      width:44px;height:44px;border-radius:10px;
+      background: linear-gradient(135deg,var(--accent),var(--gold));
+      display:flex;align-items:center;justify-content:center;color:#081022;font-weight:800;
+      font-family: "Fira Code";
+      box-shadow: 0 6px 22px rgba(179,92,255,0.08), 0 0 18px rgba(255,210,63,0.06) inset;
+    }
+    h1{font-size:16px;margin:0;color:var(--accent);letter-spacing:0.6px}
+    .subtitle{font-size:12px;color:var(--muted);margin-top:2px}
+
+    .det-top{
+      display:flex;gap:10px;align-items:center;min-width:220px;
+    }
+    .det-label{font-size:12px;color:var(--muted)}
+    .det-wrap{
+      background:var(--glass);height:10px;border-radius:999px;overflow:hidden;width:320px;border:1px solid var(--glass-border);
+    }
+    .det-fill{height:100%;width:0%;background:linear-gradient(90deg,var(--ok),var(--gold),var(--danger));box-shadow:0 6px 18px rgba(255,48,85,0.08)}
+
+    /* Map area */
+    #netmap{
       width:100%;
-      aspect-ratio:16/9;
-      max-height:720px;
-      border-radius:18px;
-      overflow:hidden;
+      height:calc(100% - 92px);
+      border-radius:10px;
       background:
-        radial-gradient(circle at top,rgba(179,92,255,0.06),transparent),
-        radial-gradient(circle at bottom,rgba(0,224,255,0.04),transparent),
-        #02040a;
-      box-shadow:0 22px 70px rgba(0,0,0,0.98);
-      border:1px solid rgba(179,92,255,0.35);
-      display:grid;
-      grid-template-columns:2fr 1.4fr;
-    }
-    .column{
+        linear-gradient(180deg, rgba(4,8,18,0.4), rgba(2,3,10,0.85)),
+        repeating-linear-gradient(135deg, rgba(255,255,255,0.01) 0px, rgba(255,255,255,0.01) 1px, transparent 1px, transparent 8px);
+      border:1px solid rgba(255,255,255,0.03);
       position:relative;
-      padding:10px;
-    }
-    .col-left{
-      border-right:1px solid rgba(255,255,255,0.04);
-    }
-    .hud-top{
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      font-size:9px;
-      color:var(--muted);
-      margin-bottom:6px;
-    }
-    .hud-top .label{color:var(--accent3);}
-    .det-bar-wrap{
-      flex:1;
-      margin:0 8px;
-      height:6px;
-      background:rgba(4,10,20,0.95);
-      border-radius:999px;
-      border:1px solid rgba(255,255,255,0.04);
       overflow:hidden;
+      box-shadow: inset 0 0 48px rgba(0,0,0,0.6);
     }
-    .det-bar{
-      height:100%;
-      width:0%;
-      background:linear-gradient(90deg,var(--ok),var(--accent3),var(--danger));
-      box-shadow:0 0 12px rgba(255,48,85,0.7);
-      transition:width 0.2s ease-out;
+
+    /* SVG will fill area */
+    #netmap svg{width:100%;height:100%;display:block}
+
+    /* Node styling (applied to group in SVG via CSS classes) */
+    .node-rect{
+      fill: rgba(6,8,16,0.9);
+      stroke: rgba(179,92,255,0.24);
+      stroke-width:1.4;
+      rx:8; ry:8;
+      filter: drop-shadow(0 8px 22px rgba(0,0,0,0.7));
+      transition: all 160ms ease;
     }
-    .mini-label{
-      font-size:8px;
-      color:var(--muted);
-    }
-    .map{
-      position:relative;
-      width:100%;
-      height:calc(100% - 26px);
-      border-radius:12px;
-      background:radial-gradient(circle at top,rgba(0,224,255,0.05),transparent),
-                 linear-gradient(to bottom,rgba(4,10,20,0.96),#02040a);
-      box-shadow:inset 0 0 22px rgba(0,0,0,0.85);
-      overflow:hidden;
-    }
-    .grid-line{
-      position:absolute;
-      background:rgba(120,140,200,0.08);
-      pointer-events:none;
-    }
-    .grid-line.v{
-      width:1px;
-      top:0;bottom:0;
-    }
-    .grid-line.h{
-      height:1px;
-      left:0;right:0;
-    }
-    .node{
-      position:absolute;
-      width:72px;
-      padding:4px 4px 6px;
-      border-radius:10px;
-      background:rgba(5,10,25,0.96);
-      border:1px solid rgba(179,92,255,0.26);
-      box-shadow:0 6px 14px rgba(0,0,0,0.9);
-      font-size:8px;
-      color:var(--muted);
-      cursor:pointer;
-      display:flex;
-      flex-direction:column;
-      gap:1px;
-      transition:all 0.16s ease-out;
-    }
-    .node .name{
-      font-size:8px;
-      color:var(--accent2);
-      font-weight:600;
-    }
-    .node .type{
-      font-size:7px;
-      opacity:0.8;
-    }
-    .node .status{
-      font-size:7px;
-      color:var(--accent3);
-    }
-    .node.selected{
-      border-color:var(--accent3);
-      box-shadow:0 0 14px rgba(255,210,63,0.9);
-      transform:translateY(-2px);
-    }
-    .node.compromised{
-      border-color:var(--ok);
-      box-shadow:0 0 12px rgba(57,255,20,0.7);
-    }
-    .node.detected{
-      border-color:var(--danger);
-      box-shadow:0 0 14px rgba(255,48,85,0.9);
-    }
-    .link{
-      position:absolute;
-      height:2px;
-      background:linear-gradient(90deg,rgba(179,92,255,0.0),rgba(179,92,255,0.6),rgba(0,224,255,0.0));
-      box-shadow:0 0 8px rgba(0,224,255,0.6);
-      transform-origin:left center;
-      opacity:0.7;
-      pointer-events:none;
-    }
-    .panel{
-      height:100%;
-      display:flex;
-      flex-direction:column;
-      gap:6px;
-    }
-    .panel-block{
-      background:radial-gradient(circle at top left,rgba(179,92,255,0.12),transparent),
-                 rgba(3,6,14,0.98);
-      border-radius:10px;
-      padding:8px;
-      border:1px solid rgba(255,255,255,0.04);
-      box-shadow:0 8px 18px rgba(0,0,0,0.95);
-    }
-    .panel-title{
-      font-size:9px;
-      color:var(--accent2);
-      margin-bottom:4px;
-      text-transform:uppercase;
-      letter-spacing:1px;
-    }
-    #log{
-      font-size:8px;
-      color:var(--muted);
-      max-height:110px;
-      overflow-y:auto;
-      line-height:1.5;
-    }
-    #log .entry.ok{color:var(--ok);}
-    #log .entry.bad{color:var(--danger);}
-    #log .entry.sys{color:var(--accent2);}
-    #log .entry.lyra{color:var(--accent3);}
-    #selected-info{
-      font-size:8px;
-      color:var(--muted);
-      line-height:1.5;
-      min-height:46px;
-    }
-    .actions{
-      display:flex;
-      flex-wrap:wrap;
-      gap:4px;
-      margin-top:2px;
-    }
+    .node-text{font-size:12px;fill:var(--accent2);font-weight:700}
+    .node-sub{font-size:10px;fill:var(--muted)}
+    .node-pulse{ fill: none; stroke: rgba(179,92,255,0.14); stroke-width: 10; filter: blur(8px) }
+    .link-line{ stroke: url(#linkGradient); stroke-width:3; stroke-linecap:round; opacity:0.9; filter: drop-shadow(0 6px 14px rgba(0,224,255,0.06)) }
+    .link-ghost{ stroke: rgba(255,255,255,0.02); stroke-width:2 }
+
+    /* Selected / compromised styles applied via JS classes */
+    .selected rect.node-rect{ stroke: var(--gold); transform: translateY(-4px); filter: drop-shadow(0 12px 28px rgba(255,210,63,0.12)) }
+    .compromised rect.node-rect{ stroke: var(--ok); box-shadow:0 0 12px rgba(57,255,20,0.15) }
+    .detected rect.node-rect{ stroke: var(--danger); filter: drop-shadow(0 12px 28px rgba(255,48,85,0.18)) }
+
+    /* Packets */
+    .packet{ fill: var(--accent2); stroke: rgba(0,0,0,0.2); stroke-width:0.6; filter: drop-shadow(0 6px 12px rgba(0,224,255,0.06)) }
+
+    /* Right column */
+    .ui-col{ padding:18px; border-left:1px solid rgba(255,255,255,0.02); display:flex; flex-direction:column; gap:12px }
+    .panel{ background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.02)); padding:12px; border-radius:10px; border:1px solid rgba(255,255,255,0.03) }
+    .panel h3{ margin:0 0 6px 0; color:var(--accent2); font-size:13px; letter-spacing:0.6px }
+    #log{ font-family: "Fira Code"; font-size:12px; max-height:220px; overflow:auto; color:var(--muted) }
+    .log-line{ margin-bottom:6px; line-height:1.2 }
+    .log-sys{ color:var(--accent2) }
+    .log-lyra{ color:var(--gold) }
+    .log-ok{ color:var(--ok) }
+    .log-bad{ color:var(--danger) }
+
+    .selected-info{ font-size:13px; color:var(--muted); min-height:64px }
+    .actions{ margin-top:8px; display:grid; grid-template-columns:repeat(2,1fr); gap:8px }
     .btn{
-      flex:1 0 calc(50% - 4px);
-      padding:6px 4px;
-      border-radius:7px;
-      border:1px solid rgba(179,92,255,0.5);
-      background:rgba(6,10,22,0.98);
+      background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.02));
+      border:1px solid rgba(255,255,255,0.04);
       color:var(--accent2);
-      font-size:8px;
+      padding:10px;
+      border-radius:8px;
       cursor:pointer;
-      text-align:center;
-      transition:all 0.12s ease-out;
+      font-weight:600;
+      font-size:13px;
+      letter-spacing:0.6px;
     }
-    .btn span{
-      font-size:7px;
-      color:var(--muted);
-      display:block;
-      margin-top:1px;
-    }
-    .btn:hover{
-      background:radial-gradient(circle at top,rgba(179,92,255,0.22),rgba(2,4,10,1));
-      box-shadow:0 4px 12px rgba(0,0,0,1);
-      transform:translateY(-1px);
-    }
-    .btn.disabled{
-      opacity:0.25;
-      cursor:default;
-      box-shadow:none;
-      transform:none;
-    }
-    .objective{
-      font-size:8px;
-      color:var(--muted);
-      line-height:1.5;
-    }
-    .objective b{
-      color:var(--accent3);
-    }
-    .end-overlay{
-      position:absolute;
-      inset:0;
-      background:radial-gradient(circle at center,rgba(0,0,0,0.15),rgba(0,0,0,0.96));
-      display:none;
-      flex-direction:column;
-      align-items:center;
-      justify-content:center;
-      text-align:center;
-      padding:16px;
-      z-index:10;
-    }
-    .end-overlay h2{
-      font-size:18px;
-      margin-bottom:4px;
-      color:var(--accent3);
-      text-shadow:0 0 14px rgba(255,210,63,1);
-    }
-    .end-overlay p{
-      font-size:9px;
-      color:var(--muted);
-      max-width:360px;
-      margin:0 auto 10px;
-      line-height:1.5;
-    }
-    .end-overlay button{
-      padding:7px 16px;
-      border-radius:999px;
-      border:none;
-      background:linear-gradient(90deg,var(--accent),var(--accent3));
-      color:#02040a;
-      font-size:9px;
-      font-weight:700;
-      cursor:pointer;
-      text-transform:uppercase;
-      box-shadow:0 10px 26px rgba(0,0,0,1);
-    }
-    .end-overlay button:hover{
-      transform:translateY(-2px);
-    }
-    .scanlines{
-      position:absolute;
-      inset:0;
-      background:repeating-linear-gradient(
-        to bottom,
-        rgba(255,255,255,0.02),
-        rgba(255,255,255,0.02) 1px,
-        transparent 3px,
-        transparent 4px
-      );
-      mix-blend-mode:soft-light;
-      opacity:0.16;
-      pointer-events:none;
-      z-index:3;
+    .btn.small{ padding:6px 8px; font-size:12px }
+    .btn.danger{ color:var(--danger) }
+    .btn.ghost{ color:var(--muted); border-style:dashed }
+
+    .bottom-actions{ display:flex; gap:8px; justify-content:space-between; align-items:center; margin-top:8px }
+    .muted{ color:var(--muted); font-size:12px }
+
+    /* overlay end */
+    .overlay{ position:absolute; inset:0; display:flex; align-items:center; justify-content:center; background:linear-gradient(180deg, rgba(2,4,6,0.5), rgba(2,4,6,0.85)); z-index:9; display:none }
+    .overlay .card{ background: linear-gradient(180deg, rgba(6,10,22,0.96), rgba(2,4,8,0.98)); border-radius:12px; padding:20px; width:520px; border:1px solid rgba(255,255,255,0.04) }
+    .overlay h2{ margin:0; color:var(--gold); font-size:20px }
+    .overlay p{ color:var(--muted); margin-top:8px }
+
+    /* small responsive */
+    @media (max-width:980px){
+      .shell{ grid-template-columns:1fr; }
+      .map-col{ order:2 }
+      .ui-col{ order:1 }
+      .det-wrap{ width:180px }
     }
   </style>
 </head>
 <body>
-<div class="wrapper">
-  <div class="topbar">
-    <div>
-      <h1>Akira Breach Ops — Simulation Réseau CrackTheCode</h1>
-      <div class="subtitle">
-        Incarne <span>Sam</span>, guidé par <span>Lyra.exe</span>. Analyse un vrai schéma réseau (pare-feu, proxy, DMZ, DC).
-        Choisis le bon chemin, limite la détection, récupère le fragment de <span>Kali</span>.
+  <div class="shell" role="application" aria-label="Akira Breach Ops">
+    <div class="map-col">
+      <div class="topbar">
+        <div class="title">
+          <div class="logo">CTC</div>
+          <div>
+            <h1>Akira Breach Ops</h1>
+            <div class="subtitle">Simulation réseau — guide Lyra.exe • Objectif : extraire un fragment Kali</div>
+          </div>
+        </div>
+
+        <div class="det-top" aria-hidden>
+          <div class="det-label">Détection</div>
+          <div class="det-wrap" title="Niveau de détection par l'Alliance">
+            <div id="detFill" class="det-fill"></div>
+          </div>
+          <div id="detText" class="muted">0% — discret</div>
+        </div>
+      </div>
+
+      <div id="netmap" aria-hidden>
+        <!-- SVG network map : nodes + links + packet layers -->
+        <svg id="svgMap" viewBox="0 0 1000 600" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="linkGradient" x1="0" x2="1">
+              <stop offset="0%" stop-color="#b35cff" stop-opacity="0.0"/>
+              <stop offset="40%" stop-color="#b35cff" stop-opacity="0.6"/>
+              <stop offset="60%" stop-color="#00e0ff" stop-opacity="0.7"/>
+              <stop offset="100%" stop-color="#00e0ff" stop-opacity="0.0"/>
+            </linearGradient>
+            <filter id="blurSmall" x="-50%" y="-50%" width="200%" height="200%">
+              <feGaussianBlur stdDeviation="4" />
+            </filter>
+          </defs>
+
+          <!-- links (SVG lines placed by JS) -->
+          <g id="links"></g>
+
+          <!-- packets layer -->
+          <g id="packets"></g>
+
+          <!-- nodes (absolute svg coords) -->
+          <!-- Edge (left) -->
+          <g id="node-edge" class="node" transform="translate(120,320)" cursor="pointer">
+            <rect class="node-rect" x="-36" y="-28" width="160" height="64" rx="10" ry="10"></rect>
+            <text class="node-text" x="-24" y="-6">Edge</text>
+            <text class="node-sub" x="-24" y="12">Gateway</text>
+          </g>
+
+          <!-- Proxy DMZ (upper center-left) -->
+          <g id="node-proxy" class="node" transform="translate(320,220)" cursor="pointer">
+            <rect class="node-rect" x="-36" y="-28" width="160" height="64" rx="10" ry="10"></rect>
+            <text class="node-text" x="-24" y="-6">Proxy</text>
+            <text class="node-sub" x="-24" y="12">WAF / DMZ</text>
+          </g>
+
+          <!-- App server (center-right) -->
+          <g id="node-app" class="node" transform="translate(560,180)" cursor="pointer">
+            <rect class="node-rect" x="-36" y="-28" width="160" height="64" rx="10" ry="10"></rect>
+            <text class="node-text" x="-24" y="-6">App</text>
+            <text class="node-sub" x="-24" y="12">Application</text>
+          </g>
+
+          <!-- DB (far right) -->
+          <g id="node-db" class="node" transform="translate(820,260)" cursor="pointer">
+            <rect class="node-rect" x="-36" y="-28" width="160" height="64" rx="10" ry="10"></rect>
+            <text class="node-text" x="-24" y="-6">DB</text>
+            <text class="node-sub" x="-24" y="12">Kali DC</text>
+          </g>
+
+          <!-- IDS -->
+          <g id="node-ids" class="node" transform="translate(420,380)" cursor="pointer">
+            <rect class="node-rect" x="-36" y="-28" width="140" height="60" rx="10" ry="10"></rect>
+            <text class="node-text" x="-24" y="-6">IDS</text>
+            <text class="node-sub" x="-24" y="12">SIEM</text>
+          </g>
+
+          <!-- Mail -->
+          <g id="node-mail" class="node" transform="translate(660,360)" cursor="pointer">
+            <rect class="node-rect" x="-36" y="-28" width="140" height="60" rx="10" ry="10"></rect>
+            <text class="node-text" x="-24" y="-6">Mail</text>
+            <text class="node-sub" x="-24" y="12">Mail server</text>
+          </g>
+
+        </svg>
       </div>
     </div>
-    <div class="controls-hint">
-      Jeu style centre d'opérations :<br>
-      — Clique un nœud sur la carte<br>
-      — SCAN / PROBE / EXPLOIT / COVER<br>
-      — Si détection atteint 100% → repéré<br>
-      — Chaîne correcte Edge → DMZ → App → DB
-    </div>
-  </div>
 
-  <div id="gameContainer">
-    <div class="column col-left">
-      <div class="hud-top">
-        <div><span class="label">Détection :</span></div>
-        <div class="det-bar-wrap"><div id="detBar" class="det-bar"></div></div>
-        <div class="mini-label" id="detLabel">0% — discret</div>
-      </div>
-      <div class="map" id="map"></div>
-    </div>
-
-    <div class="column">
+    <div class="ui-col">
       <div class="panel">
-        <div class="panel-block">
-          <div class="panel-title">Console — Flux Lyra.exe</div>
-          <div id="log"></div>
+        <h3>Console — Lyra.exe</h3>
+        <div id="log" aria-live="polite"></div>
+      </div>
+
+      <div class="panel">
+        <h3>Nœud sélectionné</h3>
+        <div id="selected-info" class="selected-info">Clique sur un nœud à gauche pour voir ses détails.</div>
+
+        <div class="actions" role="toolbar" aria-label="Actions">
+          <button id="btn-scan" class="btn">SCAN <div style="font-size:11px;color:var(--muted)">faible risque</div></button>
+          <button id="btn-probe" class="btn">PROBE <div style="font-size:11px;color:var(--muted)">risque moyen</div></button>
+          <button id="btn-exploit" class="btn">EXPLOIT <div style="font-size:11px;color:var(--muted)">risque élevé</div></button>
+          <button id="btn-cover" class="btn ghost">COVER <div style="font-size:11px;color:var(--muted)">nettoyer traces</div></button>
         </div>
-        <div class="panel-block">
-          <div class="panel-title">Nœud sélectionné</div>
-          <div id="selected-info">Clique sur un nœud dans la carte pour afficher ses détails techniques.</div>
-          <div class="actions">
-            <button class="btn" id="btn-scan">SCAN<br><span>Analyse discrète (risque faible)</span></button>
-            <button class="btn" id="btn-probe">PROBE<br><span>Fingerprint ciblé (risque moyen)</span></button>
-            <button class="btn" id="btn-exploit">EXPLOIT<br><span>Accès ciblé (risque élevé)</span></button>
-            <button class="btn" id="btn-cover">COVER<br><span>Nettoyage & réduction du bruit</span></button>
+
+        <div class="bottom-actions">
+          <div class="muted">Chaîne logique : <strong style="color:var(--gold)">Edge → Proxy → App → DB</strong></div>
+          <div style="display:flex;gap:8px">
+            <button id="btn-mute" class="btn small">Mute</button>
+            <button id="btn-reset" class="btn small">Reset</button>
           </div>
         </div>
-        <div class="panel-block">
-          <div class="panel-title">Objectifs de mission</div>
-          <div class="objective">
-            <ul>
-              <li>Ne pas dépasser <b>100%</b> de détection (sinon l'Alliance te repère).</li>
-              <li>Compromettre dans l'ordre logique :
-                <b>Passerelle Edge</b> → <b>Proxy DMZ</b> → <b>Serveur Applicatif</b> → <b>Base Kali DC</b>.
-              </li>
-              <li>Ne pas gaspiller des exploits sur IDS / Mail : c'est du bruit pur.</li>
-              <li>Simulation pédagogique : hacking éthique & compréhension réseau.</li>
-            </ul>
-          </div>
+      </div>
+
+      <div class="panel" style="display:flex;flex-direction:column;gap:8px">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <div class="muted">Objectifs</div>
+          <div style="font-size:13px;color:var(--accent)">Simulation réaliste</div>
+        </div>
+        <ol style="color:var(--muted);margin:0;padding-left:18px">
+          <li>Ne pas dépasser <strong>100%</strong> de détection</li>
+          <li>Compromettre dans l'ordre logique (Edge→Proxy→App→DB)</li>
+          <li>Éviter fixes & services annexes (IDS/Mail)</li>
+          <li>Exfiltrer le fragment de Kali proprement</li>
+        </ol>
+      </div>
+    </div>
+
+    <!-- overlays -->
+    <div id="overlay-fail" class="overlay" role="alert">
+      <div class="card">
+        <h2>INTRUSION DÉTECTÉE</h2>
+        <p>Les capteurs de l'Alliance ont triangulé ton trafic — session terminée. Réessaie avec moins de bruit et une meilleure chaîne de pivots.</p>
+        <div style="display:flex;justify-content:center;margin-top:12px">
+          <button id="retryFail" class="btn">Relancer</button>
         </div>
       </div>
     </div>
 
-    <div class="scanlines"></div>
-
-    <div class="end-overlay" id="overlay-fail">
-      <h2>INTRUSION DÉTECTÉE</h2>
-      <p>
-        Les capteurs de l'Alliance des Systèmes ont corrélé tes paquets. Session Sam coupée.
-        Réessaie avec moins de scans inutiles et une meilleure chaîne de pivots.
-      </p>
-      <button id="retry-fail">Relancer la simulation</button>
-    </div>
-
-    <div class="end-overlay" id="overlay-win">
-      <h2>ACCÈS KALI FRAGMENT // VALIDÉ</h2>
-      <p>
-        Tu as compromis Edge → Proxy → App → DC proprement, avec bruit maîtrisé.
-        Lyra.exe a extrait un fragment de Kali. Utilise ce succès pour renvoyer vers un chapitre du livre ou un autre jeu CrackTheCode.
-      </p>
-      <button id="retry-win">Rejouer / Optimiser ton run</button>
+    <div id="overlay-win" class="overlay" role="status">
+      <div class="card">
+        <h2>ACCÈS KALI // VALIDÉ</h2>
+        <p>Chaîne compromise proprement — fragment de Kali exfiltré. Bravo. Utilise ce succès pour débloquer la suite.</p>
+        <div style="display:flex;justify-content:center;margin-top:12px">
+          <button id="retryWin" class="btn">Rejouer</button>
+        </div>
+      </div>
     </div>
   </div>
-</div>
 
-<script>
-(function(){
-  "use strict";
+  <script>
+  /* ---------- Simulation controller (self-contained) ---------- */
+  (function(){
+    // Elements
+    const detFill = document.getElementById('detFill');
+    const detText = document.getElementById('detText');
+    const logEl = document.getElementById('log');
+    const selectedInfo = document.getElementById('selected-info');
+    const overlayFail = document.getElementById('overlay-fail');
+    const overlayWin  = document.getElementById('overlay-win');
 
-  const nodesData = [
-    { id:"edge", name:"Passerelle Edge", type:"Firewall d'entrée ISP", role:"Point de passage initial. Pivot logique #1.", x:9,  y:52 },
-    { id:"proxy",name:"Proxy DMZ",       type:"Reverse Proxy / WAF",   role:"Protège les applis. Pivot #2 si Edge est propre.", x:28, y:40 },
-    { id:"app",  name:"Serveur Applicatif",type:"App CrackTheCode",   role:"Logique métier. Pivot #3 vers la base Kali.", x:52, y:30 },
-    { id:"db",   name:"Base Kali DC",    type:"Data Center",           role:"Contient les fragments Kali. Cible finale.", x:78, y:38 },
-    { id:"ids",  name:"IDS / SIEM",      type:"Surveillance",          role:"Voit les scans bourrins & exploits ratés.", x:40, y:68 },
-    { id:"mail", name:"Serveur Mail",    type:"Service annexe",        role:"Mauvais pivot = alerte.", x:64, y:60 }
-  ];
+    const btnScan = document.getElementById('btn-scan');
+    const btnProbe = document.getElementById('btn-probe');
+    const btnExploit = document.getElementById('btn-exploit');
+    const btnCover = document.getElementById('btn-cover');
+    const btnMute = document.getElementById('btn-mute');
+    const btnReset = document.getElementById('btn-reset');
 
-  const linksData = [
-    ["edge","proxy"],
-    ["proxy","app"],
-    ["app","db"],
-    ["proxy","ids"],
-    ["app","mail"]
-  ];
+    const retryFail = document.getElementById('retryFail');
+    const retryWin = document.getElementById('retryWin');
 
-  const stageOrder = ["edge","proxy","app","db"];
+    // Node & link definitions (must match SVG IDs)
+    const nodes = {
+      edge:{id:'edge', name:'Passerelle Edge', status:'intact'},
+      proxy:{id:'proxy', name:'Proxy DMZ', status:'intact'},
+      app:{id:'app', name:'Serveur Applicatif', status:'intact'},
+      db:{id:'db', name:'Base Kali DC', status:'intact'},
+      ids:{id:'ids', name:'IDS / SIEM', status:'intact'},
+      mail:{id:'mail', name:'Serveur Mail', status:'intact'}
+    };
 
-  const state = {
-    detection:0,
-    compromised:[],
-    selected:null,
-    locked:false
-  };
+    const links = [
+      ['edge','proxy'], ['proxy','app'], ['app','db'],
+      ['proxy','ids'], ['app','mail']
+    ];
 
-  const mapEl = document.getElementById("map");
-  const logEl = document.getElementById("log");
-  const selInfoEl = document.getElementById("selected-info");
-  const detBar = document.getElementById("detBar");
-  const detLabel = document.getElementById("detLabel");
-  const hudNodes = document.getElementById("hud-nodes");
-  const hudStatus = document.getElementById("hud-status");
-  const overlayFail = document.getElementById("overlay-fail");
-  const overlayWin = document.getElementById("overlay-win");
-  const retryFail = document.getElementById("retry-fail");
-  const retryWin = document.getElementById("retry-win");
-  const btnScan = document.getElementById("btn-scan");
-  const btnProbe = document.getElementById("btn-probe");
-  const btnExploit = document.getElementById("btn-exploit");
-  const btnCover = document.getElementById("btn-cover");
+    // "Correct" chain order
+    const chain = ['edge','proxy','app','db'];
 
-  const nodeElements = {};
+    // State
+    let state = {
+      detection:0,
+      compromised:[],
+      selected:null,
+      locked:false,
+      muted:false
+    };
 
-  function buildGrid(){
-    for(let x=0;x<=100;x+=10){
-      const v=document.createElement("div");
-      v.className="grid-line v";
-      v.style.left=x+"%";
-      v.style.opacity=(x%20===0)?"0.16":"0.06";
-      mapEl.appendChild(v);
+    // helper log with small typing effect
+    function pushLog(cls,text,delay=0){
+      const line = document.createElement('div');
+      line.className = 'log-line ' + (cls ? 'log-'+cls : '');
+      line.textContent = '';
+      logEl.appendChild(line);
+      // typing simulation
+      let i=0;
+      const speed=8 + Math.random()*6;
+      function tick(){
+        if(i<text.length){
+          line.textContent += text[i++];
+          logEl.scrollTop = logEl.scrollHeight;
+          setTimeout(tick,speed);
+        }
+      }
+      setTimeout(tick,delay);
     }
-    for(let y=0;y<=100;y+=12){
-      const h=document.createElement("div");
-      h.className="grid-line h";
-      h.style.top=y+"%";
-      h.style.opacity=(y%24===0)?"0.18":"0.06";
-      mapEl.appendChild(h);
-    }
-  }
 
-  function buildNodes(){
-    nodesData.forEach(n=>{
-      const el=document.createElement("div");
-      el.className="node";
-      el.style.left=n.x+"%";
-      el.style.top=n.y+"%";
-      el.dataset.id=n.id;
-      el.innerHTML =
-        '<div class="name">'+n.name+'</div>' +
-        '<div class="type">'+n.type+'</div>' +
-        '<div class="status">Status: intact</div>';
-      el.addEventListener("click",()=>selectNode(n.id));
-      mapEl.appendChild(el);
-      nodeElements[n.id]=el;
+    // detection update
+    function setDetection(delta){
+      state.detection = Math.max(0, Math.min(100, Math.round((state.detection + delta)*100)/100));
+      detFill.style.width = state.detection + '%';
+      if(state.detection < 20) detText.textContent = state.detection + '% — discret';
+      else if(state.detection < 50) detText.textContent = state.detection + '% — surveillé';
+      else if(state.detection < 80) detText.textContent = state.detection + '% — chaud';
+      else detText.textContent = state.detection + '% — critique';
+
+      // visual micro-glow (color change)
+      if(state.detection >= 100) {
+        // fail
+        fail();
+      }
+    }
+
+    // selection handler
+    function selectNode(id){
+      if(state.locked) return;
+      state.selected = id;
+      // toggle CSS classes on SVG nodes
+      document.querySelectorAll('#svgMap g.node').forEach(g=> g.classList.remove('selected'));
+      const g = document.getElementById('node-'+id);
+      if(g) g.classList.add('selected');
+      const n = nodes[id];
+      selectedInfo.innerHTML = '<strong>'+n.name+'</strong><br><span style="color:var(--muted)">'+n.status+'</span>';
+      pushLog('sys','Ciblé : '+n.name);
+    }
+
+    // add click listeners to SVG nodes
+    Object.keys(nodes).forEach(id=>{
+      const el = document.getElementById('node-'+id);
+      if(!el) return;
+      el.style.cursor='pointer';
+      el.addEventListener('click',()=>selectNode(id));
+      el.addEventListener('mouseenter',()=>{ el.classList.add('hover'); });
+      el.addEventListener('mouseleave',()=>{ el.classList.remove('hover'); });
     });
-  }
 
-  function buildLinks(){
-    linksData.forEach(([a,b])=>{
-      const na=nodeElements[a];
-      const nb=nodeElements[b];
-      if(!na||!nb) return;
-      const ax=na.offsetLeft+na.offsetWidth/2;
-      const ay=na.offsetTop+na.offsetHeight/2;
-      const bx=nb.offsetLeft+nb.offsetWidth/2;
-      const by=nb.offsetTop+nb.offsetHeight/2;
-      const dx=bx-ax;
-      const dy=by-ay;
-      const dist=Math.sqrt(dx*dx+dy*dy);
-      const angle=Math.atan2(dy,dx)*180/Math.PI;
-      const link=document.createElement("div");
-      link.className="link";
-      link.style.width=dist+"px";
-      link.style.left=ax+"px";
-      link.style.top=ay+"px";
-      link.style.transform="rotate("+angle+"deg)";
-      mapEl.appendChild(link);
+    // actions: scan/probe/exploit/cover
+    function scan(){
+      if(!state.selected || state.locked) return;
+      const target = state.selected;
+      const correct = chain[state.compromised.length] === target;
+      if(correct){
+        pushLog('ok','[SCAN] Analyse discrète sur '+nodes[target].name+' — surface exploitable.');
+        setDetection(3 + Math.random()*2);
+      } else {
+        pushLog('bad','[SCAN] Analyse sur '+nodes[target].name+' — bruit détecté.');
+        markDetected(target);
+        setDetection(8 + Math.random()*4);
+      }
+    }
+    function probe(){
+      if(!state.selected || state.locked) return;
+      const target = state.selected;
+      const correct = chain[state.compromised.length] === target;
+      if(correct){
+        pushLog('ok','[PROBE] Empreinte approfondie sur '+nodes[target].name+' — vulnérabilité probable.');
+        setDetection(6 + Math.random()*4);
+      } else {
+        pushLog('bad','[PROBE] Fingerprint agressif sur '+nodes[target].name+' — corrélation SIEM.');
+        markDetected(target);
+        setDetection(12 + Math.random()*6);
+      }
+    }
+    function exploit(){
+      if(!state.selected || state.locked) return;
+      const target = state.selected;
+      if(state.compromised.includes(target)){
+        pushLog('sys','[EXPLOIT] '+nodes[target].name+' est déjà compromis.');
+        setDetection(2);
+        return;
+      }
+      const expected = chain[state.compromised.length];
+      if(target === expected){
+        // success
+        state.compromised.push(target);
+        markCompromised(target);
+        pushLog('ok','[EXPLOIT] Accès obtenu sur '+nodes[target].name+' — pivot accepté ('+state.compromised.length+'/'+chain.length+')');
+        setDetection(10 + Math.random()*4);
+        if(target === 'db') win();
+      } else {
+        pushLog('bad','[EXPLOIT] Tentative brute sur '+nodes[target].name+' — alerte critical.');
+        markDetected(target);
+        setDetection(20 + Math.random()*6);
+      }
+      updateHUD();
+    }
+    function cover(){
+      if(state.locked) return;
+      if(state.detection <= 0){
+        pushLog('sys','[COVER] Rien à effacer.');
+        return;
+      }
+      const reduce = 12 + Math.random()*6;
+      state.detection = Math.max(0, state.detection - reduce);
+      setDetection(0);
+      detFill.style.width = state.detection + '%';
+      pushLog('ok','[COVER] Logs nettoyés : -'+Math.round(reduce)+'% détection.');
+    }
+
+    // helpers to update DOM state
+    function markDetected(id){
+      const g = document.getElementById('node-'+id);
+      if(g) g.classList.add('detected');
+      pushLog('bad','[IDS] Signatures anormales détectées autour de '+nodes[id].name);
+    }
+    function markCompromised(id){
+      const g = document.getElementById('node-'+id);
+      if(g){
+        g.classList.add('compromised');
+        g.classList.remove('detected');
+      }
+    }
+    function updateHUD(){
+      // update compromised count text on right panel
+      const count = state.compromised.length;
+      // small visual hint:
+      pushLog('lyra','Fragments récupérés : '+count+'/'+chain.length);
+    }
+
+    function fail(){
+      state.locked = true;
+      pushLog('bad','[SYS] Détection à 100% — session terminée.');
+      overlayFail.style.display = 'flex';
+    }
+    function win(){
+      state.locked = true;
+      pushLog('ok','[SYS] Chaîne compromise. Exfiltration OK.');
+      overlayWin.style.display = 'flex';
+    }
+
+    // attach buttons
+    btnScan.addEventListener('click',scan);
+    btnProbe.addEventListener('click',probe);
+    btnExploit.addEventListener('click',exploit);
+    btnCover.addEventListener('click',cover);
+    btnReset.addEventListener('click', ()=>{ reset(); });
+    retryFail.addEventListener('click', ()=>{ reset(); overlayFail.style.display='none'; });
+    retryWin.addEventListener('click', ()=>{ reset(); overlayWin.style.display='none'; });
+
+    // selection by clicking default (start at edge)
+    selectNode('edge');
+
+    // UX: animate small packet dots along links
+    const svgNS = "http://www.w3.org/2000/svg";
+    const linksGroup = document.getElementById('links');
+    const packetsGroup = document.getElementById('packets');
+
+    function makeLink(aId,bId){
+      const a = document.getElementById('node-'+aId);
+      const b = document.getElementById('node-'+bId);
+      if(!a || !b) return;
+      const aBox = a.getBBox ? a.getBBox() : a.querySelector('rect').getBoundingClientRect();
+      const bBox = b.getBBox ? b.getBBox() : b.querySelector('rect').getBoundingClientRect();
+      // positions inside svg coords (groups have transforms)
+      const aTrans = a.getAttribute('transform'); // translate(x,y)
+      const bTrans = b.getAttribute('transform');
+      const ax = +aTrans.match(/translate\(([^,]+),([^)\)]+)\)/)[1];
+      const ay = +aTrans.match(/translate\(([^,]+),([^)\)]+)\)/)[2];
+      const bx = +bTrans.match(/translate\(([^,]+),([^)\)]+)\)/)[1];
+      const by = +bTrans.match(/translate\(([^,]+),([^)\)]+)\)/)[2];
+      const x1 = ax + 44, y1 = ay;
+      const x2 = bx - 44, y2 = by;
+
+      const line = document.createElementNS(svgNS,'path');
+      line.setAttribute('d', `M ${x1} ${y1} C ${x1+80} ${y1-40}, ${x2-80} ${y2-40}, ${x2} ${y2}`);
+      line.setAttribute('class','link-line');
+      linksGroup.appendChild(line);
+
+      // add a faint ghost line under
+      const ghost = document.createElementNS(svgNS,'path');
+      ghost.setAttribute('d', `M ${x1} ${y1} L ${x2} ${y2}`);
+      ghost.setAttribute('class','link-ghost');
+      linksGroup.appendChild(ghost);
+
+      // spawn packet periodically along this path
+      const pathLen = line.getTotalLength();
+      setInterval(()=>{
+        if(state.locked) return;
+        spawnPacket(line, pathLen, Math.random()*0.8 + 0.4);
+      }, 600 + Math.random()*1600);
+    }
+
+    function spawnPacket(pathElem, pathLen, speed){
+      const circle = document.createElementNS(svgNS,'circle');
+      circle.setAttribute('r', 4);
+      circle.setAttribute('class','packet');
+      packetsGroup.appendChild(circle);
+
+      let t = 0;
+      const dir = (Math.random() < 0.5) ? 1 : -1;
+      function step(){
+        if(!circle.parentNode) return;
+        t += 0.01 * speed * (1 + state.detection/200); // detection speeds traffic visually
+        const d = (dir === 1) ? t * pathLen : (1 - t) * pathLen;
+        const p = pathElem.getPointAtLength(Math.max(0, Math.min(pathLen, d)));
+        circle.setAttribute('cx', p.x);
+        circle.setAttribute('cy', p.y);
+        // fade with progression
+        circle.style.opacity = 0.9 - Math.abs(0.5 - t);
+        if(t < 1){
+          requestAnimationFrame(step);
+        } else {
+          // remove after end
+          circle.remove();
+        }
+      }
+      requestAnimationFrame(step);
+    }
+
+    // build links from data
+    links.forEach(pair => makeLink(pair[0], pair[1]));
+
+    // small ambient oscillator using WebAudio
+    let audioCtx, osc;
+    function initAudio(){
+      try{
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'sine';
+        osc.frequency.value = 55;
+        gain.gain.value = 0.0009;
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+      }catch(e){
+        // audio not available
+      }
+    }
+    // lazy start on first user interaction to avoid autoplay blocks
+    document.addEventListener('pointerdown', function once(){
+      document.removeEventListener('pointerdown', once);
+      initAudio();
     });
-  }
 
-  function log(type,msg){
-    const div=document.createElement("div");
-    div.classList.add("entry");
-    if(type==="ok") div.classList.add("ok");
-    else if(type==="bad") div.classList.add("bad");
-    else if(type==="sys") div.classList.add("sys");
-    else if(type==="lyra") div.classList.add("lyra");
-    const prefix={ok:"[OK] ",bad:"[ALERTE] ",sys:"[SYS] ",lyra:"[LYRA] "}[type] || "";
-    div.textContent=prefix+msg;
-    logEl.appendChild(div);
-    logEl.scrollTop=logEl.scrollHeight;
-  }
-
-  function setDetection(delta){
-    state.detection=Math.max(0,Math.min(100,state.detection+delta));
-    detBar.style.width=state.detection+"%";
-    let label=state.detection+"% — discret";
-    if(state.detection>20) label=state.detection+"% — surveillé";
-    if(state.detection>50) label=state.detection+"% — chaud";
-    if(state.detection>80) label=state.detection+"% — critique";
-    detLabel.textContent=label;
-    if(state.detection>=100) fail();
-  }
-
-  function updateNodesHUD(){
-    const count=state.compromised.length;
-    if(hudNodes) hudNodes.textContent=count+"/4";
-  }
-
-  function selectNode(id){
-    if(state.locked) return;
-    state.selected=id;
-    Object.values(nodeElements).forEach(el=>el.classList.remove("selected"));
-    const el=nodeElements[id];
-    if(el) el.classList.add("selected");
-    const node=nodesData.find(n=>n.id===id);
-    if(node){
-      selInfoEl.innerHTML =
-        "<b>"+node.name+"</b><br>"+node.type+
-        "<br>"+node.role+
-        "<br><span style=\"color:"+getComputedStyle(document.body).getPropertyValue('--accent-soft')+"\">Actions disponibles à droite.</span>";
-    }
-  }
-
-  function getStage(){ return state.compromised.length; }
-  function isCorrectNext(id){ return stageOrder[getStage()]===id; }
-  function isCompromised(id){ return state.compromised.includes(id); }
-
-  function scan(){
-    if(!state.selected || state.locked) return;
-    const node=nodesData.find(n=>n.id===state.selected);
-    if(!node) return;
-    if(isCorrectNext(node.id)){
-      log("ok","Scan discret sur "+node.name+" : surface d'attaque intéressante.");
-      setDetection(3);
-    } else {
-      log("bad","Scan bruyant sur "+node.name+" : traces envoyées au SIEM.");
-      nodeElements[node.id].classList.add("detected");
-      setDetection(8);
-    }
-  }
-
-  function probe(){
-    if(!state.selected || state.locked) return;
-    const node=nodesData.find(n=>n.id===state.selected);
-    if(!node) return;
-    if(isCorrectNext(node.id)){
-      log("ok","Probe ciblé sur "+node.name+" : vulnérabilité exploitable trouvée.");
-      setDetection(6);
-    } else {
-      log("bad","Fingerprint agressif sur "+node.name+" : corrélé par l'IDS.");
-      nodeElements[node.id].classList.add("detected");
-      setDetection(14);
-    }
-  }
-
-  function exploit(){
-    if(!state.selected || state.locked) return;
-    const node=nodesData.find(n=>n.id===state.selected);
-    if(!node) return;
-    if(isCompromised(node.id)){
-      log("sys",node.name+" est déjà sous contrôle.");
-      setDetection(2);
-      return;
-    }
-    const must=stageOrder[getStage()];
-    if(node.id===must){
-      state.compromised.push(node.id);
-      const el=nodeElements[node.id];
-      el.classList.add("compromised");
-      const st=el.querySelector(".status");
-      if(st) st.textContent="Status: compromis contrôlé";
-      log("ok","Accès établi sur "+node.name+" (pivot "+state.compromised.length+"/4).");
-      setDetection(10);
-      updateNodesHUD();
-      if(node.id==="edge") log("lyra","Parfait. Maintenant le Proxy DMZ, pas les jouets.");
-      else if(node.id==="proxy") log("lyra","Carré. De là, vise l'app, pas l'IDS.");
-      else if(node.id==="app") log("lyra","Encore un saut propre et Kali est à portée.");
-      if(node.id==="db") win();
-      else if(hudStatus) hudStatus.textContent="INSIDE: "+node.id.toUpperCase();
-    } else {
-      log("bad","Exploit raté sur "+node.name+" : alerte critique.");
-      nodeElements[node.id].classList.add("detected");
-      setDetection(22);
-    }
-  }
-
-  function cover(){
-    if(state.locked) return;
-    if(state.detection<=0){
-      log("sys","Aucune trace à effacer.");
-      return;
-    }
-    const gain=10;
-    state.detection=Math.max(0,state.detection-gain);
-    detBar.style.width=state.detection+"%";
-    detLabel.textContent=state.detection+"% — discrétion améliorée";
-    log("ok","Nettoyage de logs & rotation d'empreintes : -"+gain+"% détection.");
-  }
-
-  function fail(){
-    if(state.locked) return;
-    state.locked=true;
-    if(hudStatus) hudStatus.textContent="TRACÉ";
-    log("bad","L'Alliance des Systèmes a triangulé Sam. Session terminée.");
-    overlayFail.style.display="flex";
-  }
-
-  function win(){
-    if(state.locked) return;
-    state.locked=true;
-    if(hudStatus) hudStatus.textContent="KALI//LINK";
-    log("ok","Chaîne complète compromise proprement. Fragment de Kali exfiltré.");
-    log("lyra","On a ce qu'il nous faut. Connecte ce succès au reste de CrackTheCode.");
-    overlayWin.style.display="flex";
-  }
-
-  function reset(){
-    state.detection=0;
-    state.compromised=[];
-    state.selected=null;
-    state.locked=false;
-    detBar.style.width="0%";
-    detLabel.textContent="0% — discret";
-    if(hudStatus) hudStatus.textContent="STABLE";
-    if(hudNodes) hudNodes.textContent="0/4";
-    logEl.innerHTML="";
-    selInfoEl.textContent="Clique sur un nœud dans la carte pour afficher ses détails techniques.";
-    Object.values(nodeElements).forEach(el=>{
-      el.classList.remove("selected","compromised","detected");
-      const st=el.querySelector(".status");
-      if(st) st.textContent="Status: intact";
+    // mute control
+    btnMute.addEventListener('click', ()=>{
+      if(!audioCtx) return;
+      state.muted = !state.muted;
+      if(state.muted) audioCtx.suspend();
+      else audioCtx.resume();
+      btnMute.textContent = state.muted ? 'Unmute' : 'Mute';
     });
-    overlayFail.style.display="none";
-    overlayWin.style.display="none";
-    log("sys","Simulation Akira Breach Ops réinitialisée.");
-    log("lyra","On recommence. Moins de bruit, plus de cerveau.");
-  }
 
-  btnScan.addEventListener("click",scan);
-  btnProbe.addEventListener("click",probe);
-  btnExploit.addEventListener("click",exploit);
-  btnCover.addEventListener("click",cover);
-  retryFail.addEventListener("click",reset);
-  retryWin.addEventListener("click",reset);
+    // reset function
+    function reset(){
+      state = { detection:0, compromised:[], selected:null, locked:false, muted:state.muted || false };
+      detFill.style.width = '0%';
+      detText.textContent = '0% — discret';
+      logEl.innerHTML = '';
+      document.querySelectorAll('#svgMap g.node').forEach(g=>{
+        g.classList.remove('compromised','detected','selected');
+      });
+      pushLog('sys','Simulation réinitialisée.');
+      pushLog('lyra','Lyra en ligne. Recommence avec moins de bruit.');
+    }
 
-  buildGrid();
-  buildNodes();
-  setTimeout(buildLinks,40);
+    // small init logs
+    pushLog('sys','Topologie Akira loaded.');
+    pushLog('lyra','Clique sur Edge puis utilises SCAN → PROBE → EXPLOIT dans cet ordre.');
+    pushLog('sys','Astuce : COVER réduit la détection.');
 
-  log("sys","Chargement topologie Akira City / CrackTheCode...");
-  log("lyra","Clique sur Edge. Si tu commences par l'IDS, je coupe le câble moi-même.");
-})();
-</script>
+    // keyboard shortcuts convenience
+    window.addEventListener('keydown',(e)=>{
+      if(e.key === '1') scan();
+      if(e.key === '2') probe();
+      if(e.key === '3') exploit();
+      if(e.key === '4') cover();
+      if(e.key === 'r') reset();
+    });
+
+    // expose minimal API to console for debugging
+    window._ctc = { state, reset, spawnPacket };
+
+  })();
+  </script>
 </body>
 </html>
